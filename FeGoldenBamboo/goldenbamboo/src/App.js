@@ -2,8 +2,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ClientRouter from "./routers/ClientRouter";
 import StaffRouter from "./routers/StaffRouter";
 import AdminRouter from "./routers/AdminRouter";
-import Login from "./pages/authPages/Login";
+import Login from "./pages/Login.js";
 import Register from "./pages/Register.tsx";
+import Test from "./pages/Test.tsx";
+import Index from "./pages/Index.js";
 function App() {
   return (
     <BrowserRouter>
@@ -11,7 +13,9 @@ function App() {
         <Route path="/Login" element={<Login />} />
         <Route path="/Register" element={<Register />} />
 
-        <Route path="/*" element={<ClientRouter />} />
+        <Route path="/" element={<Index />} />
+
+        <Route path="/Client/*" element={<ClientRouter />} />
 
         <Route path="/Admin/*" element={<AdminRouter />} />
 
