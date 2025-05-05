@@ -1,5 +1,5 @@
 import React from "react";
-import "../../components/clientComponents/ClientHeader.scss";
+import "../../styles/clientStyles/BackgroundClient.scss";
 export default function ClientFooter() {
   return (
     <footer className="background-color text-light text-center py-3 mt-5">

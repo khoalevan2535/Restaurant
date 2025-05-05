@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../pages/Index.css";
-import Footer from "../components/clientComponents/ClientFooter.js";
+import Footer from "../components/clientComponents/Footer.js";
 import logo from "../assets/logos/LogoLight.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouse, faFaceSmileWink, faLocationDot } from "@fortawesome/free-solid-svg-icons";
