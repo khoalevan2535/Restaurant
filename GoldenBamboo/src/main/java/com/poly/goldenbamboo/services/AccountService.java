@@ -3,14 +3,12 @@ package com.poly.goldenbamboo.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.poly.goldenbamboo.dtos.AccountDTO;
+
 import com.poly.goldenbamboo.dtos.BranchDTO;
 import com.poly.goldenbamboo.entities.AccountEntity;
 import com.poly.goldenbamboo.entities.BranchEntity;
-import com.poly.goldenbamboo.mappers.AccountMapper;
 import com.poly.goldenbamboo.mappers.BranchMapper;
 import com.poly.goldenbamboo.repositories.AccountJPA;
 
