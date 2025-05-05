@@ -15,7 +15,13 @@ import com.poly.goldenbamboo.services.DiscountService;
 public class DiscountController {
     @Autowired
     private DiscountService discountService;
-
+    
+    @GetMapping("/search")
+    public ResponseEntity<List<DiscountEntity>> searchByName(
+            @RequestParam(required = false) String name) {
+        return ResponseEntity.ok(discountService.findByName(name));
+    }
+    
     @GetMapping
     public ResponseEntity<List<DiscountEntity>> getAllDiscount() {
         List<DiscountEntity> discounts = discountService.getAllDiscount();

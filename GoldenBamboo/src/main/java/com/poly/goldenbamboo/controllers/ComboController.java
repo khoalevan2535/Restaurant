@@ -1,9 +1,9 @@
 package com.poly.goldenbamboo.controllers;
 
 import com.poly.goldenbamboo.entities.ComboEntity;
-import com.poly.goldenbamboo.repositories.ComboJPA;
+import com.poly.goldenbamboo.services.ComboService;
+import com.poly.goldenbamboo.services.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,33 +11,37 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
-@RequestMapping("/Manager/Combo")
-@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("/Combo")
 public class ComboController {
 
     @Autowired
-    private ComboJPA comboJPA;
+    private ComboService comboService;
 
-    @Value("${file.upload-dir:uploads}") // Có thể cấu hình trong application.properties
-    private String uploadDir;
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+    @GetMapping("/search")
+    public ResponseEntity<List<ComboEntity>> searchCombos(@RequestParam String keyword) {
+        List<ComboEntity> combos = comboService.searchCombos(keyword);
+        return ResponseEntity.ok(combos);
+    }
 
     @GetMapping
     public ResponseEntity<List<ComboEntity>> getAllCombos() {
-        return ResponseEntity.ok(comboJPA.findAll());
+        List<ComboEntity> combos = comboService.getAllCombo();
+        return ResponseEntity.ok(combos);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ComboEntity> getComboById(@PathVariable Integer id) {
-        return comboJPA.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        ComboEntity combo = comboService.getComboById(id);
+        if (combo != null) {
+            return ResponseEntity.ok(combo);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping(consumes = {"multipart/form-data"})
@@ -49,22 +53,16 @@ public class ComboController {
             @RequestParam MultipartFile image) {
         
         try {
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            String fileName = generateFileName(image.getOriginalFilename());
-            Files.copy(image.getInputStream(), uploadPath.resolve(fileName));
-
             ComboEntity combo = new ComboEntity();
             combo.setName(name);
             combo.setDescription(description);
             combo.setPrice(price);
             combo.setStatus("active".equals(status));
-            combo.setImage(fileName); // Lưu tên file thay vì đường dẫn đầy đủ
+            
+            String imageUrl = cloudinaryService.uploadFile(image);
+            combo.setImage(imageUrl);
 
-            ComboEntity savedCombo = comboJPA.save(combo);
+            ComboEntity savedCombo = comboService.createCombo(combo, image);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedCombo);
             
         } catch (IOException e) {
@@ -82,62 +80,42 @@ public class ComboController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) MultipartFile image) {
         
-        return comboJPA.findById(id)
-                .map(combo -> {
-                    try {
-                        if (name != null) combo.setName(name);
-                        if (description != null) combo.setDescription(description);
-                        if (price != null) combo.setPrice(price);
-                        if (status != null) combo.setStatus("active".equals(status));
+        try {
+            ComboEntity existingCombo = comboService.getComboById(id);
+            if (existingCombo == null) {
+                return ResponseEntity.notFound().build();
+            }
 
-                        if (image != null && !image.isEmpty()) {
-                            // Xóa ảnh cũ nếu tồn tại
-                            if (combo.getImage() != null) {
-                                deleteImageFile(combo.getImage());
-                            }
-                            
-                            String fileName = generateFileName(image.getOriginalFilename());
-                            Path uploadPath = Paths.get(uploadDir);
-                            Files.copy(image.getInputStream(), uploadPath.resolve(fileName));
-                            combo.setImage(fileName);
-                        }
+            if (name != null) existingCombo.setName(name);
+            if (description != null) existingCombo.setDescription(description);
+            if (price != null) existingCombo.setPrice(price);
+            if (status != null) existingCombo.setStatus("active".equals(status));
 
-                        ComboEntity updatedCombo = comboJPA.save(combo);
-                        return ResponseEntity.ok(updatedCombo);
-                        
-                    } catch (IOException e) {
-                        return ResponseEntity.internalServerError()
-                                .body("Error updating combo: " + e.getMessage());
-                    }
-                })
-                .orElse(ResponseEntity.notFound().build());
+            if (image != null && !image.isEmpty()) {
+                if (existingCombo.getImage() != null) {
+                    cloudinaryService.deleteFile(cloudinaryService.extractPublicIdFromUrl(existingCombo.getImage()));
+                }
+                
+                String newImageUrl = cloudinaryService.uploadFile(image);
+                existingCombo.setImage(newImageUrl);
+            }
+
+            ComboEntity updatedCombo = comboService.updateCombo(id, existingCombo, image);
+            return ResponseEntity.ok(updatedCombo);
+            
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError()
+                    .body("Error updating combo: " + e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCombo(@PathVariable Integer id) {
-        return comboJPA.findById(id)
-                .map(combo -> {
-                    // Xóa ảnh trước khi xóa combo
-                    if (combo.getImage() != null) {
-                        deleteImageFile(combo.getImage());
-                    }
-                    comboJPA.delete(combo);
-                    return ResponseEntity.noContent().<Void>build();
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    private String generateFileName(String originalFileName) {
-        return UUID.randomUUID() + "_" + originalFileName;
-    }
-
-    private void deleteImageFile(String fileName) {
         try {
-            Path filePath = Paths.get(uploadDir, fileName);
-            Files.deleteIfExists(filePath);
+            comboService.deleteCombo(id);
+            return ResponseEntity.noContent().build();
         } catch (IOException e) {
-            // Log lỗi nhưng không làm gián đoạn flow chính
-            System.err.println("Error deleting image file: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

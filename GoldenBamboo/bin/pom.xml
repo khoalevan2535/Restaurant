@@ -34,18 +34,15 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- Spring Boot + JPA -->
 	    <dependency>
 	        <groupId>org.springframework.boot</groupId>
 	        <artifactId>spring-boot-starter-data-jpa</artifactId>
 	    </dependency>
-	
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
@@ -73,10 +70,13 @@
 		<dependency>
 		    <groupId>com.microsoft.sqlserver</groupId>
 		    <artifactId>mssql-jdbc</artifactId>
-		    <scope>runtime</scope>
+		    <scope>compile</scope>
 		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api -->
+		<dependency>
+		    <groupId>mysql</groupId>
+		    <artifactId>mysql-connector-java</artifactId>
+		    <version>8.0.33</version>
+		</dependency>
 		<dependency>
 		    <groupId>io.jsonwebtoken</groupId>
 		    <artifactId>jjwt-api</artifactId>
@@ -94,10 +94,15 @@
 		    <version>0.11.5</version>
 		    <scope>runtime</scope>
 		</dependency>
+		<dependency>
+		   <groupId>org.hibernate.validator</groupId> 
+		   <artifactId>hibernate-validator</artifactId> 
+		</dependency>
 
 
+		
 	</dependencies>
-
+		
 	<build>
 		<plugins>
 			<plugin>

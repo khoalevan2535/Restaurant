@@ -9,10 +9,17 @@ import com.poly.goldenbamboo.repositories.DiscountJPA;
 @Service
 public class DiscountService {
     @Autowired
-    private DiscountJPA discountJPA;
+     DiscountJPA discountJPA;
 
     public List<DiscountEntity> getAllDiscount() {
-        return discountJPA.findAll(); // Lấy tất cả các khuyến mãi từ database
+        return discountJPA.findAll(); 
+    }
+   
+    public List<DiscountEntity> findByName(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return discountJPA.findAll();
+        }
+        return discountJPA.findByNameContainingIgnoreCase(keyword);
     }
     
     public DiscountEntity createDiscount(DiscountEntity discount) {
