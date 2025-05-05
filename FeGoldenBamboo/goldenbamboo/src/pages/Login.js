@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "../../pages/authPages/Login.css";
-import logo from "../../assets/logos/VanKhoadark.png";
-import LoginService from "../../services/authService/LoginService";
+import "../pages/Login.css";
+import logo from "../assets/logos/VanKhoadark.png";
+import LoginService from "../services/authService/LoginService";
 
 export default function Login() {
   const [phone, setPhone] = useState("");

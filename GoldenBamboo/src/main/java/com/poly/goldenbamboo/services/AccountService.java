@@ -3,11 +3,14 @@ package com.poly.goldenbamboo.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.poly.goldenbamboo.dtos.AccountDTO;
 import com.poly.goldenbamboo.dtos.BranchDTO;
 import com.poly.goldenbamboo.entities.AccountEntity;
 import com.poly.goldenbamboo.entities.BranchEntity;
+import com.poly.goldenbamboo.mappers.AccountMapper;
 import com.poly.goldenbamboo.mappers.BranchMapper;
 import com.poly.goldenbamboo.repositories.AccountJPA;
 
@@ -20,9 +23,8 @@ public class AccountService {
     private AccountJPA accountJPA;
     
     @Autowired
-    private BranchMapper branchMapper; 
+    private BranchMapper branchMapper;
     
-    // Lấy tất cả tài khoản
     public List<AccountEntity> getAllAccount() {
         return accountJPA.findAll();
     }
@@ -30,11 +32,11 @@ public class AccountService {
     public AccountEntity login(String phone, String password) {
         AccountEntity user = accountJPA.findByPhone(phone);
         if (user == null) {
-            return null; // không tồn tại số điện thoại
+            return null; 
         }
 
         if (!user.getPassword().equals(password)) {
-            return null; // sai mật khẩu
+            return null; 
         }
 
         return user;
@@ -52,4 +54,6 @@ public class AccountService {
         }
         return branchMapper.toDTO(branchEntity);
     }
+    
+   
 }
