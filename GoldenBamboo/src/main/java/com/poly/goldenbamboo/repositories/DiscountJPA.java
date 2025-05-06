@@ -8,5 +8,6 @@ import com.poly.goldenbamboo.entities.DiscountEntity;
 
 
 public interface DiscountJPA extends JpaRepository<DiscountEntity, Integer> {
-    List<DiscountEntity> findByStatus(boolean status);
+    List<DiscountEntity> findByNameContainingIgnoreCase(String keyword);
+	
 }
