@@ -26,9 +26,9 @@ export default function ClientHeader() {
       <nav className="p-2">
         <div className="container-fluid d-flex justify-content-between">
           {/* Logo */}
-          <a className="navbar-brand me-3" href="/Client/Home">
+          <Link className="navbar-brand me-3" href="/Client/Home">
             <img src={logo} alt="Logo" className="logo" />
-          </a>
+          </Link>
 
           <div className="d-flex align-items-center">
             <div className="me-2">
@@ -48,6 +48,12 @@ export default function ClientHeader() {
             </div>
             <div className="me-2">
               <Link to="/Login" className="btn btn-outline-success me-2 text-nowrap">
+                <FontAwesomeIcon icon={faFaceSmileWink} className="me-2" />
+                Tài khoản
+              </Link>
+            </div>
+            <div className="me-2">
+              <Link to="/Client/Account" className="btn btn-outline-success me-2 text-nowrap">
                 <FontAwesomeIcon icon={faFaceSmileWink} className="me-2" />
                 Tài khoản
               </Link>

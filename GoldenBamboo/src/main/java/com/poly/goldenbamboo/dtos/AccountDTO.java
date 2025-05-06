@@ -18,4 +18,9 @@ public class AccountDTO {
     @NotBlank(message = "Mật khẩu là bắt buộc!")
     @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự!")
     private String password;
+    
+    private String name;
+    private String role;
+    
+    
 }

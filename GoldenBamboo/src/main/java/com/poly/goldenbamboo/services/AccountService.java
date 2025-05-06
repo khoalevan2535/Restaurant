@@ -1,9 +1,9 @@
 package com.poly.goldenbamboo.services;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.poly.goldenbamboo.dtos.AccountDTO;
@@ -23,11 +23,19 @@ public class AccountService {
     private AccountJPA accountJPA;
     
     @Autowired
+    private AccountMapper accountMapper;
+    
+    @Autowired
     private BranchMapper branchMapper;
     
-    public List<AccountEntity> getAllAccount() {
-        return accountJPA.findAll();
+    public List<AccountDTO> getAllAccount() {
+        return accountJPA.findAll()
+                         .stream()
+                         .map(accountMapper::toDTO)
+                         .collect(Collectors.toList());
     }
+
+
     
     public AccountEntity login(String phone, String password) {
         AccountEntity user = accountJPA.findByPhone(phone);

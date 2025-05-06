@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_URL = "http://localhost:8080";
+import { API_URL } from "../../config/apiConfig";
 
 export const findDefaultMenuDishesByBranch = async (branchId) => {
   const response = await axios.get(`${API_URL}/Client/Branch/${branchId}`);
