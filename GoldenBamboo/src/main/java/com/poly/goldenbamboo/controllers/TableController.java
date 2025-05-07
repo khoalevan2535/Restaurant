@@ -17,8 +17,5 @@ public class TableController {
 	@Autowired
 	private TableService tableService;
 
-	@GetMapping
-	public List<TableEntity> getTable() {
-		return tableService.getAllTable();
-	}
+
 }

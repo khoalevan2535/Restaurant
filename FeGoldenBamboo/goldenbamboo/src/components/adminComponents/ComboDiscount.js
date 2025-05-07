@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
 import {
   getAllDiscountCombos,
   createDiscountCombo,
   updateDiscountCombo,
   deleteDiscountCombo,
   getAllCombos,
-  getAllDiscounts
-} from '../../services/staffService/combodiscountService';
+  getAllDiscounts,
+} from "../../services/staffService/combodiscountService";
 
 const DiscountComboManager = () => {
   const [discountCombos, setDiscountCombos] = useState([]);
   const [combos, setCombos] = useState([]);
   const [discounts, setDiscounts] = useState([]);
   const [formData, setFormData] = useState({
-    comboId: '',
-    discountId: '',
-    discountPercentage: ''
+    comboId: "",
+    discountId: "",
+    discountPercentage: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -33,16 +33,12 @@ const DiscountComboManager = () => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [comboRes, discountRes, discountComboRes] = await Promise.all([
-        getAllCombos(),
-        getAllDiscounts(),
-        getAllDiscountCombos()
-      ]);
+      const [comboRes, discountRes, discountComboRes] = await Promise.all([getAllCombos(), getAllDiscounts(), getAllDiscountCombos()]);
       setCombos(comboRes);
       setDiscounts(discountRes);
       setDiscountCombos(discountComboRes);
     } catch (err) {
-      setError('Không thể tải dữ liệu. Vui lòng thử lại sau.');
+      setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
     } finally {
       setLoading(false);
     }
@@ -50,20 +46,20 @@ const DiscountComboManager = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const validateForm = () => {
     const { comboId, discountId, discountPercentage } = formData;
 
     if (!comboId || !discountId || !discountPercentage) {
-      setError('Vui lòng điền đầy đủ thông tin');
+      setError("Vui lòng điền đầy đủ thông tin");
       return false;
     }
 
     const percentage = parseFloat(discountPercentage);
     if (isNaN(percentage) || percentage < 1 || percentage > 100) {
-      setError('Phần trăm giảm giá phải nằm trong khoảng từ 1 đến 100');
+      setError("Phần trăm giảm giá phải nằm trong khoảng từ 1 đến 100");
       return false;
     }
 
@@ -82,23 +78,23 @@ const DiscountComboManager = () => {
       const payload = {
         comboId: parseInt(formData.comboId),
         discountId: parseInt(formData.discountId),
-        discountPercentage: parseFloat(formData.discountPercentage)
+        discountPercentage: parseFloat(formData.discountPercentage),
       };
 
       let message;
       if (isEditing && currentId) {
         await updateDiscountCombo(currentId, payload);
-        message = 'Cập nhật thành công!';
+        message = "Cập nhật thành công!";
       } else {
         await createDiscountCombo(payload);
-        message = 'Tạo mới thành công!';
+        message = "Tạo mới thành công!";
       }
 
       setSuccess(message);
       await loadData();
       resetForm();
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'Có lỗi xảy ra');
+      setError(err.response?.data?.message || err.message || "Có lỗi xảy ra");
     } finally {
       setLoading(false);
     }
@@ -108,26 +104,26 @@ const DiscountComboManager = () => {
     setFormData({
       comboId: item.comboId.toString(),
       discountId: item.discountId.toString(),
-      discountPercentage: item.discountPercentage.toString()
+      discountPercentage: item.discountPercentage.toString(),
     });
     setIsEditing(true);
     setShowForm(true);
     setCurrentId(item.id);
     setError(null);
     setSuccess(null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa?')) {
+    if (window.confirm("Bạn có chắc chắn muốn xóa?")) {
       setLoading(true);
       setError(null);
       try {
         await deleteDiscountCombo(id);
-        setDiscountCombos(prev => prev.filter(item => item.id !== id));
-        setSuccess('Xóa thành công!');
+        setDiscountCombos((prev) => prev.filter((item) => item.id !== id));
+        setSuccess("Xóa thành công!");
       } catch (err) {
-        setError(err.response?.data?.message || 'Lỗi khi xóa combo. Vui lòng kiểm tra lại.');
+        setError(err.response?.data?.message || "Lỗi khi xóa combo. Vui lòng kiểm tra lại.");
       } finally {
         setLoading(false);
       }
@@ -135,7 +131,7 @@ const DiscountComboManager = () => {
   };
 
   const resetForm = () => {
-    setFormData({ comboId: '', discountId: '', discountPercentage: '' });
+    setFormData({ comboId: "", discountId: "", discountPercentage: "" });
     setIsEditing(false);
     setCurrentId(null);
     setShowForm(false);
@@ -174,9 +170,9 @@ const DiscountComboManager = () => {
             setShowForm(!showForm);
             if (showForm) resetForm();
           }}
-          className={`btn ${showForm ? 'btn-secondary' : 'btn-primary'}`}
+          className={`btn ${showForm ? "btn-secondary" : "btn-primary"}`}
         >
-          {showForm ? 'Đóng form' : 'Thêm mới'}
+          {showForm ? "Đóng form" : "Thêm mới"}
         </button>
       </div>
 
@@ -186,37 +182,29 @@ const DiscountComboManager = () => {
       {showForm && (
         <div className="card mb-4">
           <div className="card-body">
-            <h4 className="card-title">{isEditing ? 'Chỉnh sửa Combo giảm giá' : 'Thêm Combo giảm giá mới'}</h4>
+            <h4 className="card-title">{isEditing ? "Chỉnh sửa Combo giảm giá" : "Thêm Combo giảm giá mới"}</h4>
             <form onSubmit={handleSubmit}>
               <div className="row g-3">
                 <div className="col-md-4">
                   <label className="form-label">Combo</label>
-                  <select
-                    name="comboId"
-                    value={formData.comboId}
-                    onChange={handleChange}
-                    className="form-select"
-                    required
-                  >
+                  <select name="comboId" value={formData.comboId} onChange={handleChange} className="form-select" required>
                     <option value="">Chọn combo</option>
-                    {combos.map(combo => (
-                      <option key={combo.id} value={combo.id}>{combo.name}</option>
+                    {combos.map((combo) => (
+                      <option key={combo.id} value={combo.id}>
+                        {combo.name}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div className="col-md-4">
                   <label className="form-label">Giảm giá</label>
-                  <select
-                    name="discountId"
-                    value={formData.discountId}
-                    onChange={handleChange}
-                    className="form-select"
-                    required
-                  >
+                  <select name="discountId" value={formData.discountId} onChange={handleChange} className="form-select" required>
                     <option value="">Chọn giảm giá</option>
-                    {discounts.map(discount => (
-                      <option key={discount.id} value={discount.id}>{discount.name}</option>
+                    {discounts.map((discount) => (
+                      <option key={discount.id} value={discount.id}>
+                        {discount.name}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -242,7 +230,7 @@ const DiscountComboManager = () => {
 
               <div className="d-flex gap-2 mt-3">
                 <button type="submit" className="btn btn-primary">
-                  {isEditing ? 'Cập nhật' : 'Thêm mới'}
+                  {isEditing ? "Cập nhật" : "Thêm mới"}
                 </button>
                 <button type="button" onClick={resetForm} className="btn btn-outline-secondary">
                   Hủy
@@ -264,23 +252,17 @@ const DiscountComboManager = () => {
             </tr>
           </thead>
           <tbody>
-            {currentDiscountCombos.map(item => (
+            {currentDiscountCombos.map((item) => (
               <tr key={item.id}>
                 <td>{getComboName(item.comboId)}</td>
                 <td>{getDiscountName(item.discountId)}</td>
                 <td>{item.discountPercentage}%</td>
                 <td>
                   <div className="d-flex gap-2">
-                    <button
-                      onClick={() => handleEdit(item)}
-                      className="btn btn-sm btn-warning"
-                    >
+                    <button onClick={() => handleEdit(item)} className="btn btn-sm btn-warning">
                       Sửa
                     </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="btn btn-sm btn-danger"
-                    >
+                    <button onClick={() => handleDelete(item.id)} className="btn btn-sm btn-danger">
                       Xóa
                     </button>
                   </div>
@@ -294,11 +276,8 @@ const DiscountComboManager = () => {
       <nav aria-label="Page navigation">
         <ul className="pagination justify-content-center mt-4">
           {Array.from({ length: totalPages }, (_, index) => (
-            <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
-              <button
-                className="page-link"
-                onClick={() => setCurrentPage(index + 1)}
-              >
+            <li key={index} className={`page-item ${currentPage === index + 1 ? "active" : ""}`}>
+              <button className="page-link" onClick={() => setCurrentPage(index + 1)}>
                 {index + 1}
               </button>
             </li>

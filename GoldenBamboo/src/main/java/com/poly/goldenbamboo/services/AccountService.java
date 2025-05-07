@@ -21,18 +21,18 @@ public class AccountService {
     @Autowired
     private AccountJPA accountJPA;
     
-    @Autowired
-    private AccountMapper accountMapper;
+//    @Autowired
+//    private AccountMapper accountMapper;
     
     @Autowired
     private BranchMapper branchMapper;
     
-    public List<AccountDTO> getAllAccount() {
-        return accountJPA.findAll()
-                         .stream()
-                         .map(accountMapper::toDTO)
-                         .collect(Collectors.toList());
-    }
+//    public List<AccountDTO> getAllAccount() {
+//        return accountJPA.findAll()
+//                         .stream()
+//                         .map(accountMapper::toDTO)
+//                         .collect(Collectors.toList());
+//    }
 
 
     

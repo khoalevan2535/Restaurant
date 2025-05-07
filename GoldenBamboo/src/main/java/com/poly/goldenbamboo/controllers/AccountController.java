@@ -25,20 +25,20 @@ import com.poly.goldenbamboo.services.LoginService;
 @RequestMapping("/Account")
 public class AccountController {
 
-	@Autowired
-	private AccountService accountService;
+//	@Autowired
+//	private AccountService accountService;
 
-	@GetMapping
-	public ResponseEntity<List<AccountDTO>> getAllAccounts() {
-	    return ResponseEntity.ok(accountService.getAllAccount());
-	}
-	
-	@GetMapping("/id")
-	public String getAccountId(@PathVariable("id") Integer id) {
-		
-		
-		return "user id";
-	}
+//	@GetMapping
+//	public ResponseEntity<List<AccountDTO>> getAllAccounts() {
+//	    return ResponseEntity.ok(accountService.getAllAccount());
+//	}
+//	
+//	@GetMapping("/id")
+//	public String getAccountId(@PathVariable("id") Integer id) {
+//		
+//		
+//		return "user id";
+//	}
 
 
 }

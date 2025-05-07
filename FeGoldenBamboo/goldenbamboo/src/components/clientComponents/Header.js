@@ -3,7 +3,7 @@ import "../../styles/clientStyles/BackgroundClient.scss";
 import logo from "../../assets/logos/LogoDark.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHouse, faFaceSmileWink, faLocationDot, faCartShopping, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { findBranch } from "../../services/adminService/branchService.js";
+import { findBranch } from "../../services/adminService/Branch.js";
 import { Link } from "react-router-dom";
 export default function ClientHeader() {
   const [branches, setBranches] = useState([]);

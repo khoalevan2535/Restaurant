@@ -23,3 +23,4 @@ export const updateBranch = async (id, branch) => {
 export const deleteBranch = async (id) => {
   await axios.delete(`${API_URL}/Manager/Branch/Delete/${id}`);
 };
+
