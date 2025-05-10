@@ -24,3 +24,13 @@ export const deleteBranch = async (id) => {
   await axios.delete(`${API_URL}/Manager/Branch/Delete/${id}`);
 };
 
+// Hiển thị chi nhánh Active
+export const findBranchActive = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/Branch/Active`, { withCredentials: true });
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách chi nhánh:", error);
+    throw error;
+  }
+};

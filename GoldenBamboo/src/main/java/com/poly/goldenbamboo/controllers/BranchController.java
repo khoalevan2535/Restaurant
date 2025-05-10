@@ -52,12 +52,6 @@ public class BranchController {
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }
 
-    // Lấy danh sách bàn theo chi nhánh
-    @GetMapping("/Branch/{branchId}/Table")
-    public ResponseEntity<List<TableEntity>> getAllTableByBranchId(@PathVariable("branchId") Integer id) {
-        return ResponseEntity.ok(tableService.getAllTableByBranchId(id));
-    }
-
     // Thêm chi nhánh (dùng DTO vào, DTO ra)
     @PostMapping("/Manager/Branch/Add")
     public ResponseEntity<BranchDTO> addBranch(@RequestBody BranchDTO dto) {

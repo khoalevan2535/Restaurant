@@ -20,12 +20,9 @@ public class TableService {
 		return tableJPA.findAll();
 	}
 
-	 public List<TableDTO> getAllTableByBranchId(Integer branchId) {
-	        return tableJPA.findByBranchId(branchId)
-	                       .stream()
-	                       .map(TableMapper::toDTO)
-	                       .collect(Collectors.toList());
-	    }
+	public List<TableDTO> getAllTableByBranchId(Integer branchId) {
+		return tableJPA.findByBranchId(branchId).stream().map(TableMapper::toDTO).collect(Collectors.toList());
+	}
 
 	public TableEntity getTableById(Integer tableId) {
 		return tableJPA.findById(tableId).orElseThrow(() -> new RuntimeException("Table not found"));

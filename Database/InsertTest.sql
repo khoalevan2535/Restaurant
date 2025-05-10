@@ -11,7 +11,7 @@ VALUES ('Admin', 1),
 
 -- 3. Insert Accounts
 INSERT INTO Accounts (branch_id, role_id, name, phone, password, status) 
-VALUES (1, 1, 'Admin User', '0909123456', 'admin123', 1),
+VALUES (1, 1, 'Admin User', '0327564891', '123456', 1),
        (1, 2, 'Staff User', '0909876543', 'staff123', 1);
 
 -- 4. Insert Categories

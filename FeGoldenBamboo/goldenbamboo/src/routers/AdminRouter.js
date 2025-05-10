@@ -8,6 +8,7 @@ import Combo from "../components/adminComponents/Combo.js";
 import ComboDish from "../components/adminComponents/ComboDish.js";
 import Discount from "../components/adminComponents/Discount.js";
 import ListTable from "../components/adminComponents/Table/ListTable.tsx";
+import Order from "../components/adminComponents/Staff/Order.tsx";
 export default function AdminRouter() {
   return (
     <Routes>
@@ -19,7 +20,8 @@ export default function AdminRouter() {
         <Route path="Combo" element={<Combo />} />
         <Route path="ComboDish" element={<ComboDish />} />
         <Route path="Discount" element={<Discount />} />
-        <Route path="Branch/:branchId/Tables" element={<ListTable />} />
+        <Route path="Branch/:branchId/Tables" element={<Order />} />
+        <Route path="Branch/:branchId/Table/:tableId/Order/:orderId" element={<a />} />
       </Route>
     </Routes>
   );

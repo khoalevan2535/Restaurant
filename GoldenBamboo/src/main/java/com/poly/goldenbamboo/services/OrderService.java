@@ -41,11 +41,14 @@ public class OrderService {
     }
 
 	// Thêm mới đơn hàng
-	public OrderDTO createOrder(OrderDTO dto) {
-		OrderEntity entity = orderMapper.toEntity(dto);
-		OrderEntity saved = orderRepository.save(entity);
-		return orderMapper.toDTO(saved);
-	}
+    public OrderDTO createOrder(OrderDTO dto) {
+        OrderEntity entity = orderMapper.toEntity(dto);
+        OrderEntity saved = orderRepository.save(entity);
+        OrderDTO result = orderMapper.toDTO(saved);
+
+        return result;
+    }
+
 
 	// Cập nhật đơn hàng
 	public OrderDTO updateOrder(OrderDTO dto) {

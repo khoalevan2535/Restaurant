@@ -3,8 +3,10 @@ package com.poly.goldenbamboo.mappers;
 import org.springframework.stereotype.Component;
 
 import com.poly.goldenbamboo.dtos.AccountDTO;
+
 import com.poly.goldenbamboo.dtos.RoleDTO;
 import com.poly.goldenbamboo.entities.AccountEntity;
+import com.poly.goldenbamboo.entities.BranchEntity;
 import com.poly.goldenbamboo.entities.RoleEntity;
 
 @Component
@@ -15,7 +17,8 @@ public class AccountMapper {
 		dto.setId(entity.getId());
 		dto.setPhone(entity.getPhone());
 		dto.setPassword(entity.getPassword());
-		dto.setRole(String.valueOf(entity.getRole().getId()));
+		dto.setRoleId(entity.getRole().getId());
+		dto.setBranchId(entity.getBranch().getId());
 
 		return dto;
 	}
@@ -27,8 +30,12 @@ public class AccountMapper {
 		entity.setPassword(dto.getPassword());
 
 		RoleEntity role = new RoleEntity();
-		role.setId(Integer.parseInt(dto.getRole()));
+		role.setId(dto.getId());
 		entity.setRole(role);
+		
+		BranchEntity branch = new BranchEntity();
+		branch.setId(dto.getBranchId());
+		entity.setBranch(branch);
 
 		return entity;
 	}

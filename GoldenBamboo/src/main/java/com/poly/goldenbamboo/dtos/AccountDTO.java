@@ -2,15 +2,13 @@ package com.poly.goldenbamboo.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-public class RegisterDTO {
-	
+@Data
+public class AccountDTO {
+	private int id;
 	private int roleId;
-	
+
 	@NotBlank(message = "Tên không được để trống")
 	private int branchId;
 
@@ -22,5 +20,4 @@ public class RegisterDTO {
 	private String password;
 	private String name;
 
-	
 }

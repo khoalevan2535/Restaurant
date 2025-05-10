@@ -7,7 +7,9 @@ export default function StaffLayout() {
     <div>
       <div><HeaderStaff/></div>
       <div><OrderStaff/></div>
-      <div><Outlet/></div>
+      <div><Outlet/></div>a
     </div>
   )
 }
+
+

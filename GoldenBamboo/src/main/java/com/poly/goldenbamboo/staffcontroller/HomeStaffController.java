@@ -82,6 +82,7 @@ public class HomeStaffController {
 
 		return branch;
 	}
+	
 
 	@GetMapping("/Staff/Branch/{branchId}/Order/{orderId}/Category/{categoryId}")
 	public Map<String, Object> orderDetailMap(
@@ -91,8 +92,6 @@ public class HomeStaffController {
 
 	    Map<String, Object> response = new HashMap<>();
 
-	    // Dữ liệu cơ bản
-	    
 	    BranchDTO branch = branchService.getBranchById(branchId);
 	    List<CategoryEntity> categories = categoryService.getAllCategory();
 	    
