@@ -7,8 +7,9 @@ import BranchCreate from "../components/adminComponents/Branch/BranchCreate.tsx"
 import Combo from "../components/adminComponents/Combo.js";
 import ComboDish from "../components/adminComponents/ComboDish.js";
 import Discount from "../components/adminComponents/Discount.js";
-import ListTable from "../components/adminComponents/Table/ListTable.tsx";
 import Order from "../components/adminComponents/Staff/Order.tsx";
+import OrderDetail from "../components/adminComponents/Staff/OrderDetail.tsx";
+import StaffLayout from "../layouts/StaffLayout.tsx";
 export default function AdminRouter() {
   return (
     <Routes>
@@ -21,7 +22,12 @@ export default function AdminRouter() {
         <Route path="ComboDish" element={<ComboDish />} />
         <Route path="Discount" element={<Discount />} />
         <Route path="Branch/:branchId/Tables" element={<Order />} />
-        <Route path="Branch/:branchId/Table/:tableId/Order/:orderId" element={<a />} />
+        <Route path="Branch/:branchId/Table/:tableId/Order/:orderId/Category/:categoryId" element={<OrderDetail />} />
+      </Route>
+      <Route path="/Staff/" element={<StaffLayout />}>
+        <Route path="Branch/:branchId/Tables" element={<Order />} />
+        <Route path="Branch/:branchId/Table/:tableId/Order/:orderId/Category/:categoryId" element={<OrderDetail />} />
+        <Route path="Branch/:branchId/Table/:tableId/Order" element={<Order />} />
       </Route>
     </Routes>
   );

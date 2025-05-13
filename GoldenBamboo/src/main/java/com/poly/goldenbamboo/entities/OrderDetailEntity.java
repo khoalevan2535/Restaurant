@@ -26,7 +26,7 @@ public class OrderDetailEntity implements Serializable {
 	private BigDecimal discountPercentage;
 
 	@Column(name = "dish_or_combo_id")
-	private int dishOrComboId;
+	private String dishOrComboId;
 
 	private BigDecimal price;
 
@@ -40,25 +40,5 @@ public class OrderDetailEntity implements Serializable {
 	@JsonIgnore
 	private OrderEntity order;
 
-	@ManyToOne
-	@JoinColumn(name = "dish_id", referencedColumnName = "id")
-	private DishEntity dish;
-
-	// Cột tham chiếu đến Combos
-	@ManyToOne
-	@JoinColumn(name = "combo_id", referencedColumnName = "id")
-	private ComboEntity combo;
-
-	// Phương thức setDish sẽ gán type = true
-	public void setDish(DishEntity dish) {
-		this.dish = dish;
-		this.type = true; // Cập nhật type khi là Dish
-	}
-
-	// Phương thức setCombo sẽ gán type = false
-	public void setCombo(ComboEntity combo) {
-		this.combo = combo;
-		this.type = false; // Cập nhật type khi là Combo
-	}
 
 }
