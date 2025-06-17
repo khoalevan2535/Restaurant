@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.poly.goldenbamboo.dtos.BranchDTO;
 import com.poly.goldenbamboo.dtos.OrderDTO;
 import com.poly.goldenbamboo.dtos.OrderDetailDTO;
-import com.poly.goldenbamboo.dtos.TableDTO;
 import com.poly.goldenbamboo.entities.CategoryEntity;
 import com.poly.goldenbamboo.entities.ComboEntity;
 import com.poly.goldenbamboo.entities.DishEntity;
+import com.poly.goldenbamboo.entities.OrderDetailEntity;
 import com.poly.goldenbamboo.entities.TableEntity;
 import com.poly.goldenbamboo.services.AccountService;
 import com.poly.goldenbamboo.services.CategoryService;
@@ -58,7 +57,7 @@ public class AdminController {
 
 	// Lấy danh sách bàn theo chi nhánh
 	// Lấy chi nhánh dựa vòa cookie
-	@GetMapping("/Branch/{branchId}/Tables")
+	@GetMapping("/Staff/Branch/{branchId}/Tables")
 	public Map<String, Object> getTablesByBranch(@PathVariable("branchId") Integer branchId,
 			@CookieValue("userId") Integer userId) {
 
@@ -73,7 +72,7 @@ public class AdminController {
 			res.put("message", "Bạn không có quyền truy cập chi nhánh này.");
 			return res;
 		}
-
+ 
 		// Trả danh sách bàn nếu hợp lệ
 		res.put("status", "success");
 		res.put("tables", tableService.getAllTableByBranchId(branchId));
@@ -81,7 +80,7 @@ public class AdminController {
 	}
 
 	// Thực hiện chọn bàn và tạo hóa đơn
-	@PostMapping("/Branch/{branchId}/Table/{tableId}")
+	@PostMapping("/Staff/Branch/{branchId}/Table/{tableId}")
 	public OrderDTO createOrderDTO(@PathVariable("branchId") Integer branchId, @PathVariable("tableId") Integer tableId,
 			@CookieValue("userId") Integer userId, @RequestBody(required = false) OrderDTO dto) {
 
@@ -111,23 +110,23 @@ public class AdminController {
 
 		// 3. Lấy chi tiết đơn hàng
 		List<OrderDetailDTO> orderDetails = orderDetailService.getOrderDetailsByOrderId(orderId);
-		for (OrderDetailDTO detail : orderDetails) {
-			if (detail.isType()) {
-				ComboEntity combo = comboService.getComboById(detail.getDishOrComboId());
-				if (combo != null) {
-					detail.setName(combo.getName());
-					detail.setImage(combo.getImage());
-					detail.setDescription(combo.getDescription());
-				}
-			} else {
-				DishEntity dish = dishService.getDishById(detail.getDishOrComboId());
-				if (dish != null) {
-					detail.setName(dish.getName());
-					detail.setImage(dish.getImage());
-					detail.setDescription(dish.getDescription());
-				}
-			}
-		}
+		 for (OrderDetailDTO detail : orderDetails) {
+		        if (detail.isType()) {
+		            ComboEntity combo = comboService.getComboById(detail.getDishOrComboId());
+		            if (combo != null) {
+		                detail.setName(combo.getName());
+		                detail.setImage(combo.getImage());
+		                detail.setDescription(combo.getDescription());
+		            }
+		        } else {
+		            DishEntity dish = dishService.getDishById(detail.getDishOrComboId());
+		            if (dish != null) {
+		                detail.setName(dish.getName());
+		                detail.setImage(dish.getImage());
+		                detail.setDescription(dish.getDescription());
+		            }
+		        }
+		    }
 
 		// 4. Lấy combo mặc định theo chi nhánh
 		List<ComboEntity> combos = comboService.getDefaultCombosByBranch(branchId);
@@ -146,6 +145,11 @@ public class AdminController {
 		res.put("table", table);
 
 		return res;
+	}
+
+	@PostMapping("/Order/AddDishToOrder")
+	public OrderDetailEntity addDishToOrder(@RequestBody OrderDetailDTO dto) {
+		return orderDetailService.addDishToOrder(dto); 
 	}
 
 }

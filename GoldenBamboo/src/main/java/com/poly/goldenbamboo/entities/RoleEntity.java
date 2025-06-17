@@ -1,13 +1,16 @@
 package com.poly.goldenbamboo.entities;
 
 import java.io.Serializable;
+import java.util.List;
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -15,23 +18,25 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name="Roles")
+@Table(name = "roles")
 public class RoleEntity implements Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private int id;
 
-	private String name;
+    @NotBlank(message = "Tên vai trò không được để trống")
+    @Size(max = 50, message = "Tên vai trò không được dài quá 50 ký tự")
+    @Column(name = "name", nullable = false, unique = true, length = 50)
+    private String name;
 
-	private boolean status;
+    @Column(name = "status")
+    private boolean status;
 
-	//bi-directional many-to-one association to AccountEntity
-	@OneToMany(mappedBy="role", fetch = FetchType.LAZY)
-	@JsonIgnore
-	@ToString.Exclude 
-	private List<AccountEntity> accounts;
-
-
+    @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ToString.Exclude
+    private List<AccountEntity> accounts;
 }

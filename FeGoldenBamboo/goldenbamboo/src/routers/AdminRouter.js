@@ -10,11 +10,13 @@ import Discount from "../components/adminComponents/Discount.js";
 import Order from "../components/adminComponents/Staff/Order.tsx";
 import OrderDetail from "../components/adminComponents/Staff/OrderDetail.tsx";
 import StaffLayout from "../layouts/StaffLayout.tsx";
+import UserInfo from "../pages/UserInfo.tsx";
 export default function AdminRouter() {
   return (
     <Routes>
       <Route path="/" element={<AdminLayout />}>
-        <Route path="Branch" element={<BranchList />} />
+        <Route path="/UserInfo" element={<UserInfo />} />
+        <Route path="Branch/List" element={<BranchList />} />
         <Route path="Branch/Detail/:branchId" element={<BranchDetail />} />
         <Route path="Branch/Create" element={<BranchCreate />} />
         <Route path="Branch/Update/:branchId" element={<BranchCreate />} />

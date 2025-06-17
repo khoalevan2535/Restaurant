@@ -14,11 +14,11 @@ public interface DishJPA extends JpaRepository<DishEntity, Integer>{
 //	           "WHERE m.branch.id = :branchId AND m.isDefault = true")
 //	    List<DishEntity> findDefaultMenuDishesByBranch(@Param("branchId") Integer branchId);
 	 
-	 @Query("SELECT md.dishe FROM Menu_DishEntity md " +
-		       "JOIN md.menus m " +
-		       "WHERE m.branch.id = :branchId AND m.isDefault = true " +
-		       "AND md.dishe.category.id = :categoryId")
-		List<DishEntity> findDefaultMenuDishesByBranchAndCategory(@Param("branchId") Integer branchId,
-		                                                          @Param("categoryId") Integer categoryId);
+//	 @Query("SELECT md.dish FROM MenuDishEntity md " +
+//		       "JOIN md.menus m " +
+//		       "WHERE m.branch.id = :branch AND m.isDefault = true " +
+//		       "AND md.dish.category.id = :category")
+//		List<DishEntity> findDefaultMenuDishesByBranchAndCategory(@Param("branchId") Integer branchId,
+//		                                                          @Param("categoryId") Integer categoryId);
 
 }

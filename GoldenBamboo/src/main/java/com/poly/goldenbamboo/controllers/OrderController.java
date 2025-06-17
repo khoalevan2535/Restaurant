@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.poly.goldenbamboo.entities.OrderEntity;
-import com.poly.goldenbamboo.services.OrderService;
+
 
 @RestController
 @RequestMapping("/Order")
 public class OrderController {
-	@Autowired
-	private OrderService orderService;
+//	@Autowired
+//	private OrderService orderService;
 	
 //	@GetMapping
 //	public List<OrderEntity> getOrder(){

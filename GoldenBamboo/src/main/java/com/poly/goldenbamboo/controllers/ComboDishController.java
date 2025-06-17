@@ -15,35 +15,35 @@ public class ComboDishController {
     @Autowired
     private ComboDishService comboDishService;
 
-    @GetMapping
-    public ResponseEntity<List<ComboDishFullDTO>> getAllComboDishes() {
-        return ResponseEntity.ok(comboDishService.getComboDishFullDTOs());
-    }
-
-    @PostMapping
-    public ResponseEntity<?> createComboDish(@RequestBody ComboDishFullDTO request) {
-        comboDishService.createComboDish(request.getComboId(), request.getDish1Id(), request.getDish2Id());
-        return ResponseEntity.ok().build();
-    }
-
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ComboDishFullDTO> updateComboDish(
-            @PathVariable int id,
-            @RequestBody ComboDishFullDTO request) {
-        return ResponseEntity.ok(comboDishService.updateComboDish(
-            id,
-            request.getComboId(),
-            request.getDish1Id(),
-            request.getDish2Id()
-        ));
-    }
+//    @GetMapping
+//    public ResponseEntity<List<ComboDishFullDTO>> getAllComboDishes() {
+//        return ResponseEntity.ok(comboDishService.getComboDishFullDTOs());
+//    }
+//
+//    @PostMapping
+//    public ResponseEntity<?> createComboDish(@RequestBody ComboDishFullDTO request) {
+//        comboDishService.createComboDish(request.getComboId(), request.getDish1Id(), request.getDish2Id());
+//        return ResponseEntity.ok().build();
+//    }
 
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteComboDish(@PathVariable int id) {
-        comboDishService.deleteComboDishByDishId(id);
-        return ResponseEntity.noContent().build();
-    }
+//    @PutMapping("/{id}")
+//    public ResponseEntity<ComboDishFullDTO> updateComboDish(
+//            @PathVariable int id,
+//            @RequestBody ComboDishFullDTO request) {
+//        return ResponseEntity.ok(comboDishService.updateComboDish(
+//            id,
+//            request.getComboId(),
+//            request.getDish1Id(),
+//            request.getDish2Id()
+//        ));
+//    }
+
+
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<Void> deleteComboDish(@PathVariable int id) {
+//        comboDishService.deleteComboDishByDishId(id);
+//        return ResponseEntity.noContent().build();
+//    }
 
 }

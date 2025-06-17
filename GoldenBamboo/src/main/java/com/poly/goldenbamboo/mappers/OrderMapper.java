@@ -20,7 +20,7 @@ public class OrderMapper {
         dto.setOrderDate(entity.getOrderDate());
         dto.setPaymentMethod(entity.getPaymentMethod());
         dto.setPrepay(entity.getPrepay());
-        dto.setStatus(entity.isStatus());
+        dto.setStatus(entity.getStatus());
         dto.setTotalAmount(entity.getTotalAmount());
 
         if (entity.getAccount() != null)
@@ -44,7 +44,7 @@ public class OrderMapper {
         entity.setOrderDate(dto.getOrderDate());
         entity.setPaymentMethod(dto.getPaymentMethod());
         entity.setPrepay(dto.getPrepay());
-        entity.setStatus(dto.isStatus());
+        entity.setStatus(dto.getStatus());
         entity.setTotalAmount(dto.getTotalAmount());
 
         AccountEntity account = new AccountEntity();

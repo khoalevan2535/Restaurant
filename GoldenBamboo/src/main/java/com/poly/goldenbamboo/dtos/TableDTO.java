@@ -15,9 +15,10 @@ public class TableDTO {
 
 	private int id;
 
-	private int number;
+	private String number;
 
-	private boolean status;
+	private int status;
 
 	private int branchId;
+	private int quantity;
 }

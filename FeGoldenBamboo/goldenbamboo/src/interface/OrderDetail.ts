@@ -26,3 +26,12 @@ export interface DataState {
   categories: Category[];
   table: Table;
 }
+
+export interface OrderDetailResponse {
+  id: number;
+  dishOrComboId: number;
+  price: number;
+  quantity: number;
+  type: boolean;
+  discountPercentage: number;
+}

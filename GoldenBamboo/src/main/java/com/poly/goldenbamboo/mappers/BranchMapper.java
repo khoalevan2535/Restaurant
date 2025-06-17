@@ -13,7 +13,7 @@ public class BranchMapper {
 	    entity.setName(dto.getName());
 	    entity.setAddress(dto.getAddress());
 	    entity.setDescription(dto.getDescription());
-	    entity.setParentId(dto.getParentId());
+	    entity.setParentId(dto.isParentId());
 	    entity.setStatus(dto.isStatus());
 	    return entity;
 	}
@@ -24,7 +24,7 @@ public class BranchMapper {
 	    dto.setName(entity.getName());
 	    dto.setAddress(entity.getAddress());
 	    dto.setDescription(entity.getDescription());
-	    dto.setParentId(entity.getParentId());
+	    dto.setParentId(entity.isParentId());
 	    dto.setStatus(entity.isStatus());
 	    return dto;
 	}

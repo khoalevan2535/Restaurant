@@ -4,8 +4,8 @@ import StaffRouter from "./routers/StaffRouter";
 import AdminRouter from "./routers/AdminRouter";
 import Login from "./pages/Login.js";
 import Register from "./pages/Register.tsx";
-import Test from "./pages/Test.tsx";
 import Index from "./pages/Index.js";
+import ProtectedRoute from "./routers/ProtectedRoute.js";
 function App() {
   return (
     <BrowserRouter>
@@ -15,11 +15,32 @@ function App() {
 
         <Route path="/" element={<Index />} />
 
-        <Route path="/Client/*" element={<ClientRouter />} />
+        <Route
+          path="/Client/*"
+          element={
+            <ProtectedRoute requiredRole="client">
+              <ClientRouter />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/Admin/*" element={<AdminRouter />} />
+        <Route
+          path="/Admin/*"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <AdminRouter />
+            </ProtectedRoute>
+          }
+        />
 
-        <Route path="/Staff/*" element={<StaffRouter />} />
+        <Route
+          path="/Staff/*"
+          element={
+            <ProtectedRoute requiredRole="staff">
+              <StaffRouter />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

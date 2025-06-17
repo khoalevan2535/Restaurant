@@ -9,14 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.poly.goldenbamboo.dtos.OrderDTO;
+import com.poly.goldenbamboo.dtos.OrderDetailDTO;
 import com.poly.goldenbamboo.entities.OrderDetailEntity;
 import com.poly.goldenbamboo.entities.OrderEntity;
 import com.poly.goldenbamboo.mappers.OrderMapper;
+import com.poly.goldenbamboo.repositories.ComboJPA;
+import com.poly.goldenbamboo.repositories.DishJPA;
 import com.poly.goldenbamboo.repositories.OrderDetailJPA;
 import com.poly.goldenbamboo.repositories.OrderJPA;
 
 @Service
 public class OrderService {
+
+	@Autowired
+    private DishJPA dishJPA;
 
 	@Autowired
 	private OrderJPA orderRepository;
@@ -26,6 +32,13 @@ public class OrderService {
 	
 	@Autowired
 	private OrderDetailJPA orderDetailJPA;
+
+	@Autowired
+	private ComboJPA comboJPA;
+	
+    OrderService(DishJPA dishJPA) {
+        this.dishJPA = dishJPA;
+    }
 
 	// Lấy tất cả đơn hàng
 	public List<OrderDTO> getAllOrders() {
@@ -97,5 +110,59 @@ public class OrderService {
 
         return total;
     }
+    
+    //Kiểm tra món đã tồn tại trong đơn hàng chưa
+    public boolean isDishOrComboExist(int id, boolean isDish) {
+        if (isDish) {
+            return dishJPA.existsById(id);
+        } else {
+            return comboJPA.existsById(id);
+        }
+    }
+    
+    public String addOrUpdateOrderDetail(OrderDetailDTO dto) {
+        // Kiểm tra Dish/Combo có tồn tại không
+        boolean exists = isDishOrComboExist(dto.getDishOrComboId(), dto.isType());
+        if (!exists) {
+            return "❌ Món ăn hoặc Combo không tồn tại!";
+        }
+
+        // Kiểm tra món đã có trong đơn hàng chưa
+        Optional<OrderDetailEntity> optionalDetail =
+                orderDetailJPA.findByOrderIdAndDishOrComboIdAndType(
+                        dto.getOrderId(),
+                        dto.getDishOrComboId(),
+                        dto.isType()
+                );
+
+        if (optionalDetail.isPresent()) {
+            // Nếu đã tồn tại → cập nhật
+            OrderDetailEntity existing = optionalDetail.get();
+            existing.setQuantity(existing.getQuantity() + dto.getQuantity());
+            existing.setPrice(dto.getPrice());
+            existing.setDiscountPercentage(dto.getDiscountPercentage());
+
+            orderDetailJPA.save(existing);
+        } else {
+            // Nếu chưa tồn tại → thêm mới
+            OrderDetailEntity newDetail = new OrderDetailEntity();
+            newDetail.setOrder(getOrderEntityById(dto.getOrderId()));
+            newDetail.setDishOrComboId(dto.getDishOrComboId());
+            newDetail.setType(dto.isType());
+            newDetail.setPrice(dto.getPrice());
+            newDetail.setQuantity(dto.getQuantity());
+            newDetail.setDiscountPercentage(dto.getDiscountPercentage());
+
+            orderDetailJPA.save(newDetail);
+        }
+
+        // Cập nhật lại tổng tiền đơn hàng
+        updateOrderTotal(dto.getOrderId());
+
+        return "✅ Xử lý món thành công.";
+    }
+
+    
+
 }
 

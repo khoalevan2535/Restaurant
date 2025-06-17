@@ -4,23 +4,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.poly.goldenbamboo.dtos.MenuDTO;
 import com.poly.goldenbamboo.entities.MenuEntity;
 import com.poly.goldenbamboo.services.MenuService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/Menus")
 public class MenuController {
 
     @Autowired
     private MenuService menuService;
 
-    // Lấy tất cả menu
-    @GetMapping
-    public List<MenuEntity> getAllMenus() {
-        return menuService.getAllMenu();
-    }
+	@GetMapping("/ListMenu/Branch/{branchId}")
+	public List<MenuEntity> getAllMenuByBranch(@PathVariable("branchId") Integer branchId	) {
+        return menuService.getMenuByBranchId(branchId);
+	}
 
     // Lấy menu theo ID
     @GetMapping("/{id}")

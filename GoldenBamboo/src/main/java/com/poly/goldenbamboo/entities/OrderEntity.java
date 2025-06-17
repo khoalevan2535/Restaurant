@@ -1,65 +1,82 @@
 package com.poly.goldenbamboo.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import org.hibernate.annotations.CreationTimestamp;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name="Orders")
+@Table(name = "orders") // Tên bảng đã đúng theo quy ước (chữ thường, số nhiều)
 public class OrderEntity implements Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private int id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private int id;
 
-	@Column(name="order_date")
-	private Timestamp orderDate;
+    @CreationTimestamp // Tự động điền thời gian tạo đơn hàng
+    @Column(name = "order_date", nullable = false, updatable = false)
+    private Timestamp orderDate;
 
-	@Column(name = "payment_method")
+    @NotBlank(message = "Phương thức thanh toán không được để trống")
+    @Size(max = 50, message = "Phương thức thanh toán không được vượt quá 50 ký tự")
+    @Column(name = "payment_method", nullable = false)
     private String paymentMethod;
 
-	private BigDecimal prepay;
+    @PositiveOrZero(message = "Tiền cọc phải lớn hơn hoặc bằng 0")
+    @Column(name = "prepay", nullable = false, precision = 10, scale = 2)
+    private BigDecimal prepay;
 
-	private boolean status;
+    @Column(name = "status", nullable = false)
+    private int status; 
+    
+    @Size(max = 1000, message = "Mô tả không được vượt quá 1000 ký tự")
+    @Column(name = "description", nullable = false)
+    private String description;
 
-	@Column(name="total_amount")
-	private BigDecimal totalAmount;
+    @PositiveOrZero(message = "Tổng tiền phải lớn hơn hoặc bằng 0")
+    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalAmount;
 
-	//bi-directional many-to-one association to OrderDetailEntity
-	@OneToMany(mappedBy="order")
-	@JsonIgnore
-	private List<OrderDetailEntity> orderDetails;
+    // Liên kết với OrderDetailEntity
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<OrderDetailEntity> orderDetails = new ArrayList<>(); // Danh sách chi tiết đơn hàng
 
-	//bi-directional many-to-one association to AccountEntity
-	@ManyToOne
-	@JoinColumn(name = "account_id")
-	@JsonIgnore
-	private AccountEntity account;
+    // Liên kết với AccountEntity
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "account_id", nullable = false) // Khóa ngoại, không được null
+    @NotNull(message = "Tài khoản không được để trống")
+    @JsonIgnore
+    private AccountEntity account;
 
-	//bi-directional many-to-one association to BranchEntity
-	@ManyToOne
-	@JsonIgnore
-	private BranchEntity branch;
+    // Liên kết với BranchEntity
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id", nullable = false) // Khóa ngoại, không được null
+    @NotNull(message = "Chi nhánh không được để trống")
+    @JsonIgnore
+    private BranchEntity branch;
 
-	//bi-directional many-to-one association to TableEntity
-	@ManyToOne
-	@JsonIgnore
-	@JoinColumn(name = "table_id")
-	private TableEntity table;
-
-	
-
+    // Liên kết với TableEntity
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "table_id", nullable = true) // Có thể để null nếu đơn hàng không gắn với bàn
+    @JsonIgnore
+    private TableEntity table;
 }

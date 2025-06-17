@@ -1,58 +1,68 @@
 package com.poly.goldenbamboo.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name="Branches")
+@Table(name = "branches") 
 public class BranchEntity implements Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private int id;
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private int id;
+    @NotBlank(message = "Địa chỉ không được để trống")
+    @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự")
+    @Column(name = "address", nullable = false)
+    private String address;
 
-	private String address;
+    @Size(max = 1000, message = "Mô tả không được vượt quá 1000 ký tự")
+    @Column(name = "description", nullable = false)
+    private String description;
 
-	private String description;
+    @NotBlank(message = "Tên chi nhánh không được để trống")
+    @Size(max = 100, message = "Tên chi nhánh không được vượt quá 100 ký tự")
+    @Column(name = "name", nullable = false)
+    private String name;
 
-	private String name;
+    @Column(name = "parent_id")
+    private boolean parentId; 
 
-	@Column(name = "parent_id")
-    private Integer parentId;
+    @Column(name = "status", nullable = false)
+    private boolean status; 
 
-	private boolean status;
+    // Liên kết với AccountEntity
+    @OneToMany(mappedBy = "branch", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<AccountEntity> accounts = new ArrayList<>(); // Khởi tạo để tránh NullPointerException
 
-	//bi-directional many-to-one association to AccountEntity
-	@OneToMany(mappedBy="branch", fetch = FetchType.LAZY)
-	@JsonIgnore
-	private List<AccountEntity> accounts;
+    // Liên kết với MenuEntity
+    @OneToMany(mappedBy = "branch", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<MenuEntity> menus = new ArrayList<>();
 
-	//bi-directional many-to-one association to MenuEntity
-	@OneToMany(mappedBy="branch", fetch = FetchType.LAZY)
-	@JsonIgnore
-	private List<MenuEntity> menus;
+    // Liên kết với OrderEntity
+    @OneToMany(mappedBy = "branch", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<OrderEntity> orders = new ArrayList<>();
 
-	//bi-directional many-to-one association to OrderEntity
-	@OneToMany(mappedBy="branch", fetch = FetchType.LAZY)
-	@JsonIgnore
-	private List<OrderEntity> orders;
-
-	//bi-directional many-to-one association to TableEntity
-	@OneToMany(mappedBy="branch", fetch = FetchType.LAZY)
-	@JsonIgnore
-	private List<TableEntity> tables;
-
-
+    // Liên kết với TableEntity
+    @OneToMany(mappedBy = "branch", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<TableEntity> tables = new ArrayList<>();
 }

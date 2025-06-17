@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.poly.goldenbamboo.dtos.OrderDetailDTO;
@@ -37,7 +38,7 @@ public class OrderDetailService {
                            .collect(Collectors.toList());
     }
     
-    public OrderDetailEntity addDishToOrder(OrderDetailDTO dto) {
+    public  OrderDetailEntity saveOrUpdateOrderDetail 	(OrderDetailDTO dto) {
         OrderEntity order = orderService.getOrderEntityById(dto.getOrderId());
 
         Optional<OrderDetailEntity> existingDetailOpt = orderDetailJPA
@@ -92,6 +93,33 @@ public class OrderDetailService {
 	    }
 	    throw new RuntimeException("Không tìm thấy món ăn với ID: " + orderDetailId);
 	}
+	
+	public OrderDetailEntity addDishToOrder(OrderDetailDTO dto) {
+        // Lấy order theo orderId
+        OrderEntity order = orderService.getOrderEntityById(dto.getOrderId());
+
+        Optional<OrderDetailEntity> existingDetailOpt = orderDetailJPA
+            .findByOrderIdAndDishOrComboIdAndType(dto.getOrderId(), dto.getDishOrComboId(), dto.isType());
+
+        OrderDetailEntity orderDetail;
+        if (existingDetailOpt.isPresent()) {
+            orderDetail = existingDetailOpt.get();
+            orderDetail.setQuantity(orderDetail.getQuantity() + dto.getQuantity());
+            // Cập nhật giá nếu cần
+            orderDetail.setPrice(dto.getPrice());
+            orderDetail.setDiscountPercentage(dto.getDiscountPercentage());
+        } else {
+            orderDetail = new OrderDetailEntity();
+            orderDetail.setOrder(order);
+            orderDetail.setDishOrComboId(dto.getDishOrComboId());
+            orderDetail.setPrice(dto.getPrice());
+            orderDetail.setQuantity(dto.getQuantity());
+            orderDetail.setType(dto.isType());
+            orderDetail.setDiscountPercentage(dto.getDiscountPercentage());
+        }
+
+        return orderDetailJPA.save(orderDetail);
+    }
 
 
 

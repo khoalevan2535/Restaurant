@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.poly.goldenbamboo.entities.OrderDetailEntity;
-import com.poly.goldenbamboo.services.OrderDetailService;
+
 
 @RestController
 @RequestMapping("/OrderDetail")
 public class OrderDetailController {
-	@Autowired
-	private OrderDetailService orderDetailService;
-	
-	@GetMapping
-	public List<OrderDetailEntity> getOrderdetail(){
-		return orderDetailService.getAllOrderdetail();
-	}
+//	@Autowired
+//	private OrderDetailService orderDetailService;
+//	
+//	@GetMapping
+//	public List<OrderDetailEntity> getOrderdetail(){
+//		return orderDetailService.getAllOrderdetail();
+//	}
 }

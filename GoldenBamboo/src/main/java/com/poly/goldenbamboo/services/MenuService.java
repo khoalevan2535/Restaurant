@@ -11,11 +11,12 @@ import java.util.List;
 public class MenuService {
 
     @Autowired
-    private MenuJPA menuJPA;  // Sử dụng MenuJPA thay vì MenuRepository
+    private MenuJPA menuJPA;  
 
-    // Lấy tất cả menu
-    public List<MenuEntity> getAllMenu() {
-        return menuJPA.findAll();
+    
+    //Lấy tất cả menu theo branchId
+    public List<MenuEntity> getMenuByBranchId(Integer branchId) {
+    	return menuJPA.findByBranchId(branchId);
     }
 
     // Lấy menu theo ID

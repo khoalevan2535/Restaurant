@@ -11,7 +11,7 @@ public class OrderDTO {
     private Timestamp orderDate;
     private String paymentMethod;
     private BigDecimal prepay;
-    private boolean status;
+    private int status;
     private BigDecimal totalAmount;
 
     private int accountId;

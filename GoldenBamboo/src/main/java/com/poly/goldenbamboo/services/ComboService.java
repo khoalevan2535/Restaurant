@@ -2,6 +2,7 @@ package com.poly.goldenbamboo.services;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +33,7 @@ public class ComboService {
         if (keyword == null || keyword.trim().isEmpty()) {
             return comboJPA.findAll();
         }
-        return comboJPA.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
+        return null;
     }
 
     
@@ -170,8 +171,8 @@ public class ComboService {
     }
 
 
-	public List<ComboEntity> getDefaultCombosByBranch(Integer branchId) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    public List<ComboEntity> getDefaultCombosByBranch(Integer branchId) {
+      //  return comboJPA.findDefaultMenuCombosByBranch(branchId);
+    	return null;
+    }
 }

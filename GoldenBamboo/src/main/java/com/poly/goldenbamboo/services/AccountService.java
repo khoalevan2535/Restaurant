@@ -56,8 +56,10 @@ public class AccountService {
 		user.setBranch(branch);
 
 		RoleEntity role = new RoleEntity();
-		role.setId(2);
+		role.setId(4);
 		user.setRole(role);
+		
+		user.setStatus(true);
 
 		return accountJPA.save(user);
 	}

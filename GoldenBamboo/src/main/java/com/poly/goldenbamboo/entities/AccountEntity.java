@@ -1,62 +1,79 @@
 package com.poly.goldenbamboo.entities;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Entity
-@Table(name="Accounts")
+@Table(name = "accounts")
 public class AccountEntity implements Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private int id;
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private int id;
+    @CreationTimestamp // Tự động điền thời gian tạo
+    @Column(name = "create_at", updatable = false)
+    private Timestamp createAt;
 
-	@Column(name="create_at")
-	private Timestamp createAt;
+    @NotBlank(message = "Tên không được để trống")
+    @Size(max = 100, message = "Tên không được vượt quá 100 ký tự")
+    @Column(name = "name", nullable = false)
+    private String name;
 
-	private String name;
+    @NotBlank(message = "Mật khẩu không được để trống")
+    @Size(min = 8, message = "Mật khẩu phải có ít nhất 8 ký tự")
+    @Column(name = "password", nullable = false)
+    private String password; // Lưu ý: Nên mã hóa mật khẩu trước khi lưu
 
-	private String password;
+    @NotBlank(message = "Số điện thoại không được để trống")
+    @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "Số điện thoại không hợp lệ")
+    @Column(name = "phone", unique = true, nullable = false)
+    private String phone;
 
-	private String phone;
+    @Column(name = "status", nullable = false)
+    private boolean status;
 
-	private boolean status;
+    @UpdateTimestamp // Tự động cập nhật thời gian sửa đổi
+    @Column(name = "update_at")
+    private Timestamp updateAt;
 
-	@Column(name="update_at")
-	private Timestamp updateAt;
+    // Liên kết với BranchEntity
+    @ManyToOne(fetch = FetchType.LAZY) // Tải lười để tối ưu hiệu suất
+    @JoinColumn(name = "branch_id", nullable = true) // Có thể cho phép null nếu không bắt buộc
+    @JsonIgnore
+    private BranchEntity branch;
 
-	//bi-directional many-to-one association to BranchEntity
-	@ManyToOne
-	@JsonIgnore
-	private BranchEntity branch;
-
-	//bi-directional many-to-one association to RoleEntity
-	@ManyToOne
-    @JoinColumn(name = "role_id")
+    // Liên kết với RoleEntity
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false) // Vai trò là bắt buộc
     @JsonIgnore
     private RoleEntity role;
 
-	//bi-directional many-to-one association to OrderEntity
-	@OneToMany(mappedBy="account")
-	@JsonIgnore
-	private List<OrderEntity> orders;
+    // Liên kết với OrderEntity
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<OrderEntity> orders = new ArrayList<>(); // Khởi tạo để tránh NullPointerException
 
-	//bi-directional many-to-one association to ReservationEntity
-	@OneToMany(mappedBy="account")
-	@JsonIgnore
-	private List<ReservationEntity> reservations;
-
+    // Liên kết với ReservationEntity
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ReservationEntity> reservations = new ArrayList<>();
 }

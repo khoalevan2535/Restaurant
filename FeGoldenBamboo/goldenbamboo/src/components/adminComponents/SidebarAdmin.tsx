@@ -7,7 +7,18 @@ export default function sidebarAdmin() {
         <ul className="list-group list-group-flush">
           <li className="sidebar-item my-2">
             <Link to="/Admin/Dashboard" className="link-body-emphasis ">Dashboard</Link>
-          </li>
+          </li> 
+          <div className='mb-2'>
+          <button type="button" className="btn btn-primary w-100" data-bs-toggle="collapse" data-bs-target="#branch">Chi nhánh</button>
+          <div id="branch" className="collapse">
+            <ul>
+              <li><Link to="/Admin/Branch/List">List</Link></li>
+              <li><Link to="/Admin/Branch/Create">Create</Link></li>
+              <li><Link to="/Admin/Branch/Update/:branchId">Update</Link></li>
+            </ul>
+          </div>
+          </div>
+  
           <li className="sidebar-item my-2">
             <Link to="/Admin/Branch" className="link-body-emphasis ">Chi nhánh</Link>
           </li>
