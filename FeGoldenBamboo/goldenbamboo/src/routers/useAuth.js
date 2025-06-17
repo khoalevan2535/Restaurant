@@ -1,12 +1,29 @@
-// Đây là một ví dụ đơn giản. Trong thực tế, bạn sẽ giải mã JWT hoặc đọc cookie.
-export const useAuth = () => {
-  // Logic lấy vai trò người dùng
-  // Ví dụ: Đọc từ localStorage
-  const user = JSON.parse(localStorage.getItem("user")); // Giả sử bạn lưu user object
-  const userRole = user ? user.role : null; // Lấy thuộc tính role
+import React from "react";
+import { Navigate } from "react-router-dom";
+// BƯỚC 1: IMPORT THƯ VIỆN VỪA CÀI
+import Cookies from "js-cookie";
 
-  // Trong ví dụ này, ta giả định vai trò là 'admin' để test
-  // return { userRole: 'admin' };
+// Component ProtectedRoute không thay đổi
+const ProtectedRoute = ({ requiredRole, children }) => {
+  const { userRole } = useAuth();
+
+  if (userRole !== requiredRole) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+export default ProtectedRoute;
+
+// BƯỚC 2: SỬA LẠI HOOK useAuth
+export const useAuth = () => {
+  // Đọc trực tiếp cookie có tên 'userRole'
+  // Tên này phải TRÙNG KHỚP với tên bạn đặt ở backend
+  const userRole = Cookies.get("userRole");
+
+  // Nếu cookie có giá trị là 'admin', userRole sẽ là chuỗi "admin"
+  // Nếu không tìm thấy cookie, userRole sẽ là undefined
 
   return { userRole };
 };

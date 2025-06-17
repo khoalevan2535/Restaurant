@@ -31,12 +31,5 @@ public class RoleService {
 		return false;
 	}
 
-	public RoleEntity updateRole(Integer id, RoleEntity updatedRole) {
-		return roleJPA.findById(id).map(role -> {
-			role.setName(updatedRole.getName());
-			role.setStatus(updatedRole.isStatus());
-			return roleJPA.save(role);
-		}).orElseThrow(() -> new RuntimeException("Fail"));
-	}
 
 }

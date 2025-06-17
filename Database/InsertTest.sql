@@ -35,7 +35,7 @@ VALUES (1, 1),
 
 -- 8. Insert Menus
 INSERT INTO Menus (branch_id, name)
-VALUES (1, 'Menu Chính');
+VALUES (1, 'Menuroles Chính');
 
 -- 9. Insert Menu_Dishes
 INSERT INTO Menu_Dishes (menu_id, dish_id)

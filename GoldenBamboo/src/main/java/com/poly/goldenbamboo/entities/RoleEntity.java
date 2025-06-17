@@ -27,13 +27,9 @@ public class RoleEntity implements Serializable {
     @Column(name = "id")
     private int id;
 
-    @NotBlank(message = "Tên vai trò không được để trống")
-    @Size(max = 50, message = "Tên vai trò không được dài quá 50 ký tự")
-    @Column(name = "name", nullable = false, unique = true, length = 50)
-    private String name;
 
-    @Column(name = "status")
-    private boolean status;
+    @Column(name = "name")
+    private String name;
 
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore

@@ -35,10 +35,10 @@ public class LoginController {
             response.addCookie(cookie);
             
             // Giả sử user.getRole() trả về một chuỗi như "admin", "staff", "client"
-            Cookie roleCookie = new Cookie("userRole", String.valueOf(user.getRole()));
+            Cookie roleCookie = new Cookie("userRole", user.getRole().getName());
             roleCookie.setPath("/");
             // Quan trọng: Đặt là false để JavaScript phía client có thể đọc được cookie này
-            roleCookie.setHttpOnly(true); 
+            roleCookie.setHttpOnly(false); 
             roleCookie.setMaxAge(7 * 24 * 60 * 60);
             response.addCookie(roleCookie);
 
