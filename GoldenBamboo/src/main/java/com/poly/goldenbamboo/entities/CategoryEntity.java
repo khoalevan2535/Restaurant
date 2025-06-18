@@ -32,7 +32,7 @@ public class CategoryEntity implements Serializable {
     private String name;
 
     // Liên kết với DishEntity
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
-    private List<DishEntity> dishes = new ArrayList<>(); // Khởi tạo để tránh NullPointerException
+    // @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    // @JsonIgnore
+    // private List<DishEntity> dishes = new ArrayList<>(); // Khởi tạo để tránh NullPointerException
 }

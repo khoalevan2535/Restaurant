@@ -15,7 +15,7 @@ public class TableDTO {
 
 	private int id;
 
-	private String number;
+	private int number;
 
 	private int status;
 

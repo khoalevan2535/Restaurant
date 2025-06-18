@@ -29,7 +29,7 @@ public class TableEntity implements Serializable {
 
     @Column(name = "number", nullable = false, unique = true, length = 10)
     @NotBlank(message = "Số bàn không được để trống")
-    private String number;
+    private int number;
     
     @NotNull(message = "Số lượng bàn không được null")
     @Column(name = "quantity", nullable = false, length = 50)

@@ -1,25 +1,31 @@
 package com.poly.goldenbamboo.mappers;
-
 import com.poly.goldenbamboo.dtos.TableDTO;
 import com.poly.goldenbamboo.entities.TableEntity;
 
 public class TableMapper {
- public static TableDTO toDTO(TableEntity entity) {
-     TableDTO dto = new TableDTO();
-     dto.setId(entity.getId());
-     dto.setNumber(entity.getNumber());
-     dto.setStatus(entity.getStatus());
-     dto.setBranchId(entity.getBranch().getId());
-     dto.setQuantity(entity.getQuantity());
-     return dto;
- }
+   // Chuyển từ TableEntity sang TableBeans
+    public static TableDTO mapToTableBeans(TableEntity tableEntity) {
+        if (tableEntity == null) {
+            return null;
+        }
+        TableDTO tableBeans = new TableDTO();
+        tableBeans.setId(tableEntity.getId());
+        tableBeans.setBranchId(
+            tableEntity.getBranch() != null ? tableEntity.getBranch().getId() : null
+        );
+        tableBeans.setNumber(tableEntity.getNumber());
+        return tableBeans;
+    }
 
- public static TableEntity toEntity(TableDTO dto) {
-     TableEntity entity = new TableEntity();
-     entity.setId(dto.getId());
-     entity.setNumber(dto.getNumber());
-     entity.setStatus(dto.getStatus());
-     entity.setQuantity(dto.getQuantity());
-     return entity;
- }
+    // Chuyển từ TableBeans sang TableEntity
+    public static TableEntity mapToTableEntity(TableDTO tableBeans) {
+        if (tableBeans == null) {
+            return null;
+        }
+        TableEntity tableEntity = new TableEntity();
+        tableEntity.setId(tableBeans.getId());
+        tableEntity.setBranch(BranchMapper.mapToBranchEntityById(tableBeans.getBranchId()));
+        tableEntity.setNumber(tableBeans.getNumber());
+        return tableEntity;
+    }
 }

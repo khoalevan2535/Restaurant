@@ -29,4 +29,6 @@ public class Combodtos {
 
     @NotNull(message = "Trạng thái không được để trống")
     private Boolean status;
+
+    private String image;
 }
