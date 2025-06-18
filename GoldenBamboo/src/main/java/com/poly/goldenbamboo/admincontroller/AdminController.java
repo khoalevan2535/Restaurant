@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.poly.goldenbamboo.dtos.BranchDTO;
+import com.poly.goldenbamboo.dtos.CategoryDTO;
+import com.poly.goldenbamboo.dtos.DishesDTO;
 import com.poly.goldenbamboo.dtos.OrderDTO;
 import com.poly.goldenbamboo.dtos.OrderDetailDTO;
+import com.poly.goldenbamboo.dtos.TableDTO;
 import com.poly.goldenbamboo.entities.CategoryEntity;
 import com.poly.goldenbamboo.entities.ComboEntity;
 import com.poly.goldenbamboo.entities.DishEntity;
@@ -103,10 +106,10 @@ public class AdminController {
 		Map<String, Object> res = new HashMap<>();
 
 		// 1. Lấy thông tin bàn
-		TableEntity table = tableService.getTableById(tableId);
+		TableDTO table = tableService.getTableById(tableId);
 
 		// 2. Lấy danh mục
-		List<CategoryEntity> categories = categoryService.getAllCategory();
+		List<CategoryDTO> categories = categoryService.getAllCategories();
 
 		// 3. Lấy chi tiết đơn hàng
 		List<OrderDetailDTO> orderDetails = orderDetailService.getOrderDetailsByOrderId(orderId);
@@ -119,7 +122,7 @@ public class AdminController {
 		                detail.setDescription(combo.getDescription());
 		            }
 		        } else {
-		            DishEntity dish = dishService.getDishById(detail.getDishOrComboId());
+		            DishesDTO dish = dishService.getDishesById(detail.getDishOrComboId());
 		            if (dish != null) {
 		                detail.setName(dish.getName());
 		                detail.setImage(dish.getImage());

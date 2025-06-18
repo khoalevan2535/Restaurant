@@ -21,4 +21,14 @@ public interface DishJPA extends JpaRepository<DishEntity, Integer>{
 //		List<DishEntity> findDefaultMenuDishesByBranchAndCategory(@Param("branchId") Integer branchId,
 //		                                                          @Param("categoryId") Integer categoryId);
 
+@Query("SELECT d FROM DishEntity d WHERE d.name = ?1")
+    DishEntity findByName(String name);
+
+    // @Query("SELECT d FROM DishEntity d JOIN Discount_DishEntity dd ON d.id =
+    // dd.dishe.id")
+    // List<DishEntity> findDiscountedDishes();
+
+    @Query("SELECT d FROM DishEntity d LEFT JOIN Discount_DishEntity dd ON d.id = dd.dishe.id WHERE dd IS NOT NULL")
+    List<DishEntity> findDiscountedDishes();
+
 }

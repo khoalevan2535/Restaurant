@@ -1,6 +1,7 @@
 package com.poly.goldenbamboo.entities;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -36,4 +37,7 @@ public class DiscountDishEntity implements Serializable {
     @NotNull(message = "Món ăn không được để trống")
     @JsonIgnore
     private DishEntity dish; // Sửa tên biến từ 'dishe' thành 'dish' cho đúng ngữ nghĩa
+
+    @Column(name="discount_percentage")
+    private BigDecimal discountPercentage;
 }

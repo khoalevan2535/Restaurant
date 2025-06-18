@@ -29,5 +29,12 @@ public class BranchMapper {
 	    return dto;
 	}
 
-
+	public static BranchEntity mapToBranchEntityById(Integer id) {
+        if (id == null) {
+            return null;
+        }
+        BranchEntity branchEntity = new BranchEntity();
+        branchEntity.setId(id);
+        return branchEntity;
+    }
 }

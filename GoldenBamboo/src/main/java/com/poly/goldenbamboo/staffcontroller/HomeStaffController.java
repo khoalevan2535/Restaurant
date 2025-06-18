@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.poly.goldenbamboo.controllers.ReservationController;
 import com.poly.goldenbamboo.dtos.BranchDTO;
+import com.poly.goldenbamboo.dtos.CategoryDTO;
+import com.poly.goldenbamboo.dtos.DishesDTO;
 import com.poly.goldenbamboo.dtos.OrderDTO;
 import com.poly.goldenbamboo.dtos.OrderDetailDTO;
 import com.poly.goldenbamboo.entities.CategoryEntity;
@@ -92,7 +94,7 @@ public class HomeStaffController {
 	    Map<String, Object> response = new HashMap<>();
 
 	    BranchDTO branch = branchService.getBranchById(branchId);
-	    List<CategoryEntity> categories = categoryService.getAllCategory();
+	    List<CategoryDTO> categories = categoryService.getAllCategories();
 	    
 	    List<OrderDetailDTO> orderDetails = orderDetailService.getOrderDetailsByOrderId(orderId);
 
@@ -105,7 +107,7 @@ public class HomeStaffController {
 	                detail.setDescription(combo.getDescription());
 	            }
 	        } else {
-	            DishEntity dish = dishService.getDishById(detail.getDishOrComboId());
+	            DishesDTO dish = dishService.getDishesById(detail.getDishOrComboId());
 	            if (dish != null) {
 	                detail.setName(dish.getName());
 	                detail.setImage(dish.getImage());
