@@ -40,14 +40,12 @@ public class OrderService {
         this.dishJPA = dishJPA;
     }
 
-	// Lấy tất cả đơn hàng
-	public List<OrderDTO> getAllOrders() {
-		return orderRepository.findAll()
-		                      .stream()
-		                      .map(orderMapper::toDTO)
-		                      .collect(Collectors.toList());
-	}
-
+    public List<OrderDTO> getAllOrdersDTO() {
+        return orderRepository.findAll()
+                              .stream()
+                              .map(orderMapper::toDTO)
+                              .collect(Collectors.toList());
+    }
     public OrderEntity getOrderEntityById(Integer orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));

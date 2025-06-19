@@ -25,6 +25,7 @@ import com.poly.goldenbamboo.entities.CategoryEntity;
 import com.poly.goldenbamboo.entities.ComboEntity;
 import com.poly.goldenbamboo.entities.DishEntity;
 import com.poly.goldenbamboo.entities.OrderDetailEntity;
+import com.poly.goldenbamboo.entities.TableEntity;
 import com.poly.goldenbamboo.services.AccountService;
 import com.poly.goldenbamboo.services.BranchService;
 import com.poly.goldenbamboo.services.CategoryService;
@@ -37,7 +38,6 @@ import com.poly.goldenbamboo.services.TableService;
 import jakarta.persistence.EntityNotFoundException;
 
 @RestController
-//@RequestMapping("/Staff")
 public class HomeStaffController {
 
 	private final ReservationController reservationController;
@@ -62,7 +62,7 @@ public class HomeStaffController {
 
 	@Autowired
 	private BranchService branchService;
-	
+
 	@Autowired
 	private ComboService comboService;
 
@@ -75,61 +75,107 @@ public class HomeStaffController {
 		return accountService.getBranchByUserId(userId);
 	}
 
-	@GetMapping("/Staff/Branch/{branchId}")
-	public BranchDTO getBranchById(@PathVariable("branchId") Integer branchId) {
-		BranchDTO branch = branchService.getBranchById(branchId);
+//	@GetMapping("/Staff/Branch/{branchId}/Order/{orderId}/Category/{categoryId}")
+//	public Map<String, Object> orderDetailMap(@PathVariable("branchId") Integer branchId,
+//			@PathVariable("orderId") Integer orderId, @PathVariable("categoryId") Integer categoryId) {
+//
+//		Map<String, Object> response = new HashMap<>();
+//
+//		BranchDTO branch = branchService.getBranchById(branchId);
+//		List<CategoryEntity> categories = categoryService.getAllCategory();
+//
+//		List<OrderDetailDTO> orderDetails = orderDetailService.getOrderDetailsByOrderId(orderId);
+//
+//		for (OrderDetailDTO detail : orderDetails) {
+//			if (detail.isType()) {
+//				ComboEntity combo = comboService.getComboById(detail.getDishOrComboId());
+//				if (combo != null) {
+//					detail.setName(combo.getName());
+//					detail.setImage(combo.getImage());
+//					detail.setDescription(combo.getDescription());
+//				}
+//			} else {
+//				DishEntity dish = dishService.getDishById(detail.getDishOrComboId());
+//				if (dish != null) {
+//					detail.setName(dish.getName());
+//					detail.setImage(dish.getImage());
+//					detail.setDescription(dish.getDescription());
+//				}
+//			}
+//		}
+//
+//		List<ComboEntity> combos = comboService.getDefaultCombosByBranch(branchId);
+//
+//		List<DishEntity> foods = new ArrayList<>();
+//		if (categoryId != -1) {
+//			foods = dishService.getDefaultMenuDishesByBranchAndCategory(branchId, categoryId);
+//		}
+//
+//		response.put("orderDetails", orderDetails);
+//		response.put("branch", branch);
+//		response.put("categories", categories);
+//		response.put("foods", foods);
+//		response.put("combos", combos);
+//
+//		return response;
+//	}
 
-		return branch;
+	// Thực hiện hiển thị giao diện chọn món
+	@GetMapping("/Staff/Branch/{branchId}/Table/{tableId}/Order/{orderId}/Category/{categoryId}")
+	public Map<String, Object> Order(@PathVariable("branchId") Integer branchId,
+			@PathVariable("tableId") Integer tableId, @PathVariable("categoryId") Integer categoryId,
+			@PathVariable("orderId") Integer orderId) {
+
+		Map<String, Object> res = new HashMap<>();
+
+		// 1. Lấy thông tin bàn
+		TableEntity table = tableService.getTableById(tableId);
+
+		// 2. Lấy danh mục
+		List<CategoryEntity> categories = categoryService.getAllCategory();
+
+		// 3. Lấy chi tiết đơn hàng
+		List<OrderDetailDTO> orderDetails = orderDetailService.getOrderDetailsByOrderId(orderId);
+		for (OrderDetailDTO detail : orderDetails) {
+			if (detail.isType()) {
+				ComboEntity combo = comboService.getComboById(detail.getDishOrComboId());
+				if (combo != null) {
+					detail.setName(combo.getName());
+					detail.setImage(combo.getImage());
+					detail.setDescription(combo.getDescription());
+				}
+			} else {
+				DishEntity dish = dishService.getDishById(detail.getDishOrComboId());
+				if (dish != null) {
+					detail.setName(dish.getName());
+					detail.setImage(dish.getImage());
+					detail.setDescription(dish.getDescription());
+				}
+			}
+		}
+
+		// 4. Lấy combo mặc định theo chi nhánh
+		List<ComboEntity> combos = comboService.getDefaultCombosByBranch(branchId);
+
+		// 5. Lấy danh sách món ăn theo category
+		List<DishEntity> foods = new ArrayList<>();
+		if (categoryId != -1) {
+			foods = dishService.getDefaultMenuDishesByBranchAndCategory(branchId, categoryId);
+		}
+
+		// 6. Trả dữ liệu về
+		res.put("orderDetails", orderDetails);
+		res.put("categories", categories);
+		res.put("foods", foods);
+		res.put("combos", combos);
+		res.put("table", table);
+
+		return res;
 	}
 	
-
-	@GetMapping("/Staff/Branch/{branchId}/Order/{orderId}/Category/{categoryId}")
-	public Map<String, Object> orderDetailMap(
-	        @PathVariable("branchId") Integer branchId,
-	        @PathVariable("orderId") Integer orderId,
-	        @PathVariable("categoryId") Integer categoryId) {
-
-	    Map<String, Object> response = new HashMap<>();
-
-	    BranchDTO branch = branchService.getBranchById(branchId);
-	    List<CategoryEntity> categories = categoryService.getAllCategory();
-	    
-	    List<OrderDetailDTO> orderDetails = orderDetailService.getOrderDetailsByOrderId(orderId);
-
-	    for (OrderDetailDTO detail : orderDetails) {
-	        if (detail.isType()) {
-	            ComboEntity combo = comboService.getComboById(detail.getDishOrComboId());
-	            if (combo != null) {
-	                detail.setName(combo.getName());
-	                detail.setImage(combo.getImage());
-	                detail.setDescription(combo.getDescription());
-	            }
-	        } else {
-	            DishEntity dish = dishService.getDishById(detail.getDishOrComboId());
-	            if (dish != null) {
-	                detail.setName(dish.getName());
-	                detail.setImage(dish.getImage());
-	                detail.setDescription(dish.getDescription());
-	            }
-	        }
-	    }
-
-	    List<ComboEntity> combos = comboService.getDefaultCombosByBranch(branchId);
-
-	    List<DishEntity> foods = new ArrayList<>();
-	    if (categoryId != -1) {
-	        foods = dishService.getDefaultMenuDishesByBranchAndCategory(branchId, categoryId);
-	    }
-	    
-	    response.put("orderDetails", orderDetails);
-	    response.put("branch", branch);
-	    response.put("categories", categories);
-	    response.put("foods", foods);
-	    response.put("combos", combos);    
-
-	    return response;
-	}
-
+	
+	
+	
 
 	@PostMapping("/Staff")
 	public OrderDTO createOrder(@RequestBody OrderDTO dto, @CookieValue("userId") Integer userId) {
@@ -139,38 +185,33 @@ public class HomeStaffController {
 
 	@PostMapping("/AddFoodToOrder")
 	public OrderDetailEntity addDishToOrder(@RequestBody OrderDetailDTO dto) {
-		return orderDetailService.addDishToOrder(dto); 
-	}
-	
-	@DeleteMapping("/Staff/Branch/{branchId}/Order/{orderId}/OrderDetail/{orderDetailId}")
-	public ResponseEntity<String> removeDishFromOrder(@PathVariable("branchId") Integer branchId,
-	                                                  @PathVariable("orderId") Integer orderId,
-	                                                  @PathVariable("orderDetailId") Integer orderDetailId) {
-	    try {
-	        boolean isRemoved = orderDetailService.removeDishFromOrder(orderId, orderDetailId);
-	        if (isRemoved) {
-	            return ResponseEntity.status(HttpStatus.OK).body("Món đã được xóa khỏi giỏ hàng.");
-	        } else {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Món không tồn tại trong giỏ hàng.");
-	        }
-	    } catch (EntityNotFoundException e) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy món hoặc đơn hàng.");
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi xóa món khỏi giỏ hàng.");
-	    }
-	}
-	
-	@PutMapping("/Staff/Order/{orderId}/OrderDetail/{orderDetailId}/updateQuantity")
-	public ResponseEntity<?> updateDishQuantity(
-	    @PathVariable("orderId") int orderId,
-	    @PathVariable("orderDetailId") int orderDetailId,
-	    @RequestBody Map<String, Integer> body
-	) {
-	    int quantity = body.get("quantity");
-	    // Gọi service để update vào DB
-	    orderService.updateQuantity(orderId, orderDetailId, quantity);
-	    return ResponseEntity.ok().build();
+		return orderDetailService.addDishToOrder(dto);
 	}
 
+	@DeleteMapping("/Staff/Branch/{branchId}/Order/{orderId}/OrderDetail/{orderDetailId}")
+	public ResponseEntity<String> removeDishFromOrder(@PathVariable("branchId") Integer branchId,
+			@PathVariable("orderId") Integer orderId, @PathVariable("orderDetailId") Integer orderDetailId) {
+		try {
+			boolean isRemoved = orderDetailService.removeDishFromOrder(orderId, orderDetailId);
+			if (isRemoved) {
+				return ResponseEntity.status(HttpStatus.OK).body("Món đã được xóa khỏi giỏ hàng.");
+			} else {
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Món không tồn tại trong giỏ hàng.");
+			}
+		} catch (EntityNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy món hoặc đơn hàng.");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi xóa món khỏi giỏ hàng.");
+		}
+	}
+
+	@PutMapping("/Staff/Order/{orderId}/OrderDetail/{orderDetailId}/updateQuantity")
+	public ResponseEntity<?> updateDishQuantity(@PathVariable("orderId") int orderId,
+			@PathVariable("orderDetailId") int orderDetailId, @RequestBody Map<String, Integer> body) {
+		int quantity = body.get("quantity");
+		// Gọi service để update vào DB
+		orderService.updateQuantity(orderId, orderDetailId, quantity);
+		return ResponseEntity.ok().build();
+	}
 
 }

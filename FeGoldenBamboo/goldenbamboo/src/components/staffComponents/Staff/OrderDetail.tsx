@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getMenuData, addDishToOrder } from '../../../services/adminService/OrderDetail.tsx';
-import { Food, Category, Table } from '../../../interface/OrderDetail';
+import { Food, Category, Table } from '../../../interface/OrderDetail.ts';
 
 export default function OrderDetail() {
   const { branchId, tableId, orderId, categoryId } = useParams<{

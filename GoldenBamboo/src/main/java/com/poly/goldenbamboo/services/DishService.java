@@ -27,7 +27,8 @@ public class DishService {
 		Optional<DishEntity> optional = dishJPA.findById(id);
 		return optional.get();
 	}
-
+	
+	
 //	public List<DishEntity> getDishesFromDefaultMenu(Integer branchId) {
 //        return dishJPA.findDefaultMenuDishesByBranchAndCategory(branchId);
 //    }

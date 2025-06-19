@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.poly.goldenbamboo.dtos.FoodDTO;
 import com.poly.goldenbamboo.entities.DishEntity;
+import com.poly.goldenbamboo.entities.MenuEntity;
 import com.poly.goldenbamboo.services.DishService;
 
 @RestController
@@ -30,6 +31,11 @@ public class DishController {
 		return dishService.getDishById(id);
 	}
 	
+//	@GetMapping("/DishByBranch/{branchId}")
+//	public List<DishEntity> getAllDishByBranch(@PathVariable("branchId") Integer branchId	) {
+//        return dishService.getDishByBranchId(branchId);
+//	}
+//	
 //	@PostMapping("Food/Create")
 //	public FoodDTO createFoodDTO(@RequestBody FoodDTO dto) {
 //		return dishService.createDish(dto);

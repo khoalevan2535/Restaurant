@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getBranch, createOrder } from "../../services/staffService/OrderService.js"; // Import service
 import { useNavigate } from "react-router-dom";
-
+import { Link } from "react-router-dom";
 const OrderStaff = () => {
   const [branch, setBranch] = useState(null);
   const navigate = useNavigate();
@@ -34,6 +34,40 @@ const OrderStaff = () => {
 
   return (
     <div>
+      <div>
+        <nav className="navbar navbar-expand-lg bg-body-tertiary">
+          <div className="container-fluid">
+            <Link className="navbar-brand" to="#">
+              Navbar
+            </Link>
+            <button
+              className="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarNav"
+              aria-controls="navbarNav"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span className="navbar-toggler-icon"></span>
+            </button>
+            <div className="collapse navbar-collapse" id="navbarNav">
+              <ul className="navbar-nav">
+                <li className="nav-item">
+                  <Link className="nav-link active" aria-current="page" to="/Staff/Branch/:branchId/Tables">
+                    Đặt món
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link active" aria-current="page" to="/Staff">
+                    Bàn ăn
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </div>
       {branch ? (
         <div className="mb-4">
           <h3>Chi nhánh: {branch.name}</h3>

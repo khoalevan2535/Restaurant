@@ -41,13 +41,15 @@ public class BranchController {
     public ResponseEntity<List<BranchDTO>> getAllBranches() {
         return ResponseEntity.ok(branchService.getAllBranch());
     }
+    
+
     @GetMapping("/Branch/Active")
     public List<BranchEntity> getActiveBranches() {
         return branchService.getActiveBranches();
     }
 
-    @GetMapping("/Branch/{id}")
-    public ResponseEntity<BranchDTO> getBranchById(@PathVariable("id") Integer id) {
+    @GetMapping("/Branch/{branchId}")
+    public ResponseEntity<BranchDTO> getBranchById(@PathVariable("branchId") Integer id) {
         BranchDTO dto = branchService.getBranchById(id);
         return dto != null ? ResponseEntity.ok(dto) : ResponseEntity.notFound().build();
     }

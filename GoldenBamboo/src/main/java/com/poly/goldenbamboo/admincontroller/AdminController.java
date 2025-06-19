@@ -31,7 +31,6 @@ import com.poly.goldenbamboo.services.OrderService;
 import com.poly.goldenbamboo.services.TableService;
 
 @RestController
-@RequestMapping("/Admin")
 public class AdminController {
 
 	@Autowired
@@ -78,6 +77,7 @@ public class AdminController {
 		res.put("tables", tableService.getAllTableByBranchId(branchId));
 		return res;
 	}
+	
 
 	// Thực hiện chọn bàn và tạo hóa đơn
 	@PostMapping("/Staff/Branch/{branchId}/Table/{tableId}")
@@ -94,58 +94,7 @@ public class AdminController {
 		return orderService.createOrder(dto);
 	}
 
-	// Thực hiện hiển thị giao diện chọn món
-	@GetMapping("/Branch/{branchId}/Table/{tableId}/Order/{orderId}/Category/{categoryId}")
-	public Map<String, Object> Order(@PathVariable("branchId") Integer branchId,
-			@PathVariable("tableId") Integer tableId, @PathVariable("categoryId") Integer categoryId,
-			@PathVariable("orderId") Integer orderId) {
 
-		Map<String, Object> res = new HashMap<>();
-
-		// 1. Lấy thông tin bàn
-		TableEntity table = tableService.getTableById(tableId);
-
-		// 2. Lấy danh mục
-		List<CategoryEntity> categories = categoryService.getAllCategory();
-
-		// 3. Lấy chi tiết đơn hàng
-		List<OrderDetailDTO> orderDetails = orderDetailService.getOrderDetailsByOrderId(orderId);
-		 for (OrderDetailDTO detail : orderDetails) {
-		        if (detail.isType()) {
-		            ComboEntity combo = comboService.getComboById(detail.getDishOrComboId());
-		            if (combo != null) {
-		                detail.setName(combo.getName());
-		                detail.setImage(combo.getImage());
-		                detail.setDescription(combo.getDescription());
-		            }
-		        } else {
-		            DishEntity dish = dishService.getDishById(detail.getDishOrComboId());
-		            if (dish != null) {
-		                detail.setName(dish.getName());
-		                detail.setImage(dish.getImage());
-		                detail.setDescription(dish.getDescription());
-		            }
-		        }
-		    }
-
-		// 4. Lấy combo mặc định theo chi nhánh
-		List<ComboEntity> combos = comboService.getDefaultCombosByBranch(branchId);
-
-		// 5. Lấy danh sách món ăn theo category
-		List<DishEntity> foods = new ArrayList<>();
-		if (categoryId != -1) {
-			foods = dishService.getDefaultMenuDishesByBranchAndCategory(branchId, categoryId);
-		}
-
-		// 6. Trả dữ liệu về
-		res.put("orderDetails", orderDetails);
-		res.put("categories", categories);
-		res.put("foods", foods);
-		res.put("combos", combos);
-		res.put("table", table);
-
-		return res;
-	}
 
 	@PostMapping("/Order/AddDishToOrder")
 	public OrderDetailEntity addDishToOrder(@RequestBody OrderDetailDTO dto) {

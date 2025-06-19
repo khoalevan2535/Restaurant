@@ -30,7 +30,7 @@ useEffect(() => {
     try {
       const result = await createOrder(branchId, selectedTable);
       // Giả sử BE trả về { id: ... }
-      navigate(`/Admin/Staff/Branch/${branchId}/Table/${selectedTable}/Order/${result.id}/Category/-1`);
+      navigate(`/Staff/Branch/${branchId}/Table/${selectedTable}/Order/${result.id}/Category/-1`);
     } catch (error) {
       alert("Tạo hóa đơn thất bại!");
     }

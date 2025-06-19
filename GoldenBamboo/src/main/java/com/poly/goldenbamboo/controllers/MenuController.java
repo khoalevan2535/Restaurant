@@ -22,7 +22,7 @@ public class MenuController {
 	}
 
     // Lấy menu theo ID
-    @GetMapping("/{id}")
+    @GetMapping("/Menu/Edit/{id}")
     public ResponseEntity<MenuEntity> getMenuById(@PathVariable Integer id) {
         MenuEntity menu = menuService.getMenuById(id);
         return menu != null ? ResponseEntity.ok(menu) : ResponseEntity.notFound().build();

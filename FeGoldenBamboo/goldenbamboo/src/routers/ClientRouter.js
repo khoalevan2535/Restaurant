@@ -12,6 +12,7 @@ export default function ClientRouter() {
         <Route path="Search" element={<Search />} />
         <Route path="Cart" element={<Cart />} />
         <Route path="Account" element={<Account />} />
+        
       </Route>
     </Routes>
   );

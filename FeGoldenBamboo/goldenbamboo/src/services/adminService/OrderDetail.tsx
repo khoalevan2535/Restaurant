@@ -9,7 +9,7 @@ export const getMenuData = async (
   categoryId: number
 ): Promise<DataState> => {
   const response = await axios.get<DataState>(
-    `${API_URL}/Admin/Branch/${branchId}/Table/${tableId}/Order/${orderId}/Category/${categoryId}`
+    `${API_URL}/Staff/Branch/${branchId}/Table/${tableId}/Order/${orderId}/Category/${categoryId}`
   );
   return response.data;
 };
