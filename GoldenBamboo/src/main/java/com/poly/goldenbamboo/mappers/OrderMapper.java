@@ -22,6 +22,7 @@ public class OrderMapper {
         dto.setPrepay(entity.getPrepay());
         dto.setStatus(entity.getStatus());
         dto.setTotalAmount(entity.getTotalAmount());
+        dto.setDescription(entity.getDescription());
 
         if (entity.getAccount() != null)
             dto.setAccountId(entity.getAccount().getId());
@@ -31,6 +32,7 @@ public class OrderMapper {
 
         if (entity.getTable() != null)
             dto.setTableId(entity.getTable().getId());
+        
 
         return dto;
     }
@@ -46,6 +48,7 @@ public class OrderMapper {
         entity.setPrepay(dto.getPrepay());
         entity.setStatus(dto.getStatus());
         entity.setTotalAmount(dto.getTotalAmount());
+        entity.setDescription(dto.getDescription());
 
         AccountEntity account = new AccountEntity();
         account.setId(dto.getAccountId());

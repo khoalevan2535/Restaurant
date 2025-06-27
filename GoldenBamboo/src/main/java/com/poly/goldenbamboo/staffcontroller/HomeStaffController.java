@@ -119,6 +119,41 @@ public class HomeStaffController {
 //
 //		return response;
 //	}
+	
+	@GetMapping("/Staff/Branch/{branchId}/Tables")
+	public Map<String, Object> getTablesByBranch(@PathVariable("branchId") Integer branchId,
+			@CookieValue("userId") Integer userId) {
+
+		Map<String, Object> res = new HashMap<>();
+
+		// Lấy chi nhánh từ userId
+		BranchDTO userBranch = accountService.getBranchByUserId(userId);
+
+		// So sánh chi nhánh từ user với chi nhánh được yêu cầu
+		if (userBranch.getId() != branchId) {
+			res.put("status", "error");
+			res.put("message", "Bạn không có quyền truy cập chi nhánh này.");
+			return res;
+		}
+ 
+		res.put("tables", tableService.getAllTableByBranchId(branchId));
+		return res;
+	}
+	
+	@PostMapping("/Staff/CreateOrder")
+	public OrderDTO createOrder(@RequestBody OrderDTO dto, @CookieValue("userId") Integer userId) {
+		dto.setAccountId(userId);
+		return orderService.createOrder(dto);
+	}
+	
+	@GetMapping("/Staff/Order/{orderId}")
+    public ResponseEntity<OrderDTO> findOrderDTO(@PathVariable("orderId") Integer orderId) {
+        // Gọi Service để lấy OrderDTO
+        OrderDTO orderDTO = orderService.getOrderById(orderId);
+
+        // Trả về OrderDTO trong một ResponseEntity với trạng thái HTTP 200 OK
+        return ResponseEntity.ok(orderDTO);
+    }
 
 	// Thực hiện hiển thị giao diện chọn món
 	@GetMapping("/Staff/Branch/{branchId}/Table/{tableId}/Order/{orderId}/Category/{categoryId}")
@@ -169,6 +204,7 @@ public class HomeStaffController {
 		res.put("foods", foods);
 		res.put("combos", combos);
 		res.put("table", table);
+		
 
 		return res;
 	}
@@ -177,11 +213,7 @@ public class HomeStaffController {
 	
 	
 
-	@PostMapping("/Staff")
-	public OrderDTO createOrder(@RequestBody OrderDTO dto, @CookieValue("userId") Integer userId) {
-		dto.setAccountId(userId);
-		return orderService.createOrder(dto);
-	}
+
 
 	@PostMapping("/AddFoodToOrder")
 	public OrderDetailEntity addDishToOrder(@RequestBody OrderDetailDTO dto) {

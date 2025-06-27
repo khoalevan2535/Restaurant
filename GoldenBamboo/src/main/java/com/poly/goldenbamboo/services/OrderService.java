@@ -22,44 +22,45 @@ import com.poly.goldenbamboo.repositories.OrderJPA;
 public class OrderService {
 
 	@Autowired
-    private DishJPA dishJPA;
+	private DishJPA dishJPA;
 
 	@Autowired
 	private OrderJPA orderRepository;
 
 	@Autowired
 	private OrderMapper orderMapper;
-	
+
 	@Autowired
 	private OrderDetailJPA orderDetailJPA;
 
 	@Autowired
 	private ComboJPA comboJPA;
-	
-    OrderService(DishJPA dishJPA) {
-        this.dishJPA = dishJPA;
-    }
 
-    public List<OrderDTO> getAllOrdersDTO() {
-        return orderRepository.findAll()
-                              .stream()
-                              .map(orderMapper::toDTO)
-                              .collect(Collectors.toList());
-    }
-    public OrderEntity getOrderEntityById(Integer orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
-    }
+	OrderService(DishJPA dishJPA) {
+		this.dishJPA = dishJPA;
+	}
+
+	public List<OrderDTO> getAllOrdersDTO() {
+		return orderRepository.findAll().stream().map(orderMapper::toDTO).collect(Collectors.toList());
+	}
+
+	public OrderDTO getOrderById(Integer orderId) {
+		// 1. Truy vấn OrderEntity từ Repository
+		OrderEntity orderEntity = orderRepository.findById(orderId)
+				.orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+
+		// 2. Sử dụng OrderMapper để chuyển đổi OrderEntity sang OrderDTO
+		return orderMapper.toDTO(orderEntity);
+	}
 
 	// Thêm mới đơn hàng
-    public OrderDTO createOrder(OrderDTO dto) {
-        OrderEntity entity = orderMapper.toEntity(dto);
-        OrderEntity saved = orderRepository.save(entity);
-        OrderDTO result = orderMapper.toDTO(saved);
+	public OrderDTO createOrder(OrderDTO dto) {
+		OrderEntity entity = orderMapper.toEntity(dto);
+		OrderEntity saved = orderRepository.save(entity);
+		OrderDTO result = orderMapper.toDTO(saved);
 
-        return result;
-    }
-
+		return result;
+	}
 
 	// Cập nhật đơn hàng
 	public OrderDTO updateOrder(OrderDTO dto) {
@@ -72,95 +73,89 @@ public class OrderService {
 	public void deleteOrder(int id) {
 		orderRepository.deleteById(id);
 	}
-	
+
 	public void updateQuantity(int orderId, int orderDetailId, int quantity) {
-        Optional<OrderDetailEntity> optional = orderDetailJPA.findById(orderDetailId);
-        if (optional.isPresent()) {
-            OrderDetailEntity detail = optional.get();
-            
-            if (detail.getOrder().getId() != orderId) {
-                throw new RuntimeException("❌ Order ID không khớp!");
-            }
+		Optional<OrderDetailEntity> optional = orderDetailJPA.findById(orderDetailId);
+		if (optional.isPresent()) {
+			OrderDetailEntity detail = optional.get();
 
-            detail.setQuantity(quantity);
-            orderDetailJPA.save(detail);
-        } else {
-            throw new RuntimeException("❌ Không tìm thấy orderDetailId: " + orderDetailId);
-        }
-    }
+			if (detail.getOrder().getId() != orderId) {
+				throw new RuntimeException("❌ Order ID không khớp!");
+			}
+
+			detail.setQuantity(quantity);
+			orderDetailJPA.save(detail);
+		} else {
+			throw new RuntimeException("❌ Không tìm thấy orderDetailId: " + orderDetailId);
+		}
+	}
+
 	public void updateOrderTotal(int orderId) {
-        OrderEntity order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+		OrderEntity order = orderRepository.findById(orderId)
+				.orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
 
-        BigDecimal totalAmount = calculateTotalAmount(orderId);
-        order.setTotalAmount(totalAmount);
-        orderRepository.save(order);
-    }
-	
-    public BigDecimal calculateTotalAmount(int orderId) {
-        List<OrderDetailEntity> details = orderDetailJPA.findByOrderId(orderId);
-        BigDecimal total = BigDecimal.ZERO;
+		BigDecimal totalAmount = calculateTotalAmount(orderId);
+		order.setTotalAmount(totalAmount);
+		orderRepository.save(order);
+	}
 
-        for (OrderDetailEntity detail : details) {
-            BigDecimal lineTotal = detail.getPrice().multiply(BigDecimal.valueOf(detail.getQuantity()));
-            total = total.add(lineTotal);
-        }
+	public BigDecimal calculateTotalAmount(int orderId) {
+		List<OrderDetailEntity> details = orderDetailJPA.findByOrderId(orderId);
+		BigDecimal total = BigDecimal.ZERO;
 
-        return total;
-    }
-    
-    //Kiểm tra món đã tồn tại trong đơn hàng chưa
-    public boolean isDishOrComboExist(int id, boolean isDish) {
-        if (isDish) {
-            return dishJPA.existsById(id);
-        } else {
-            return comboJPA.existsById(id);
-        }
-    }
-    
-    public String addOrUpdateOrderDetail(OrderDetailDTO dto) {
-        // Kiểm tra Dish/Combo có tồn tại không
-        boolean exists = isDishOrComboExist(dto.getDishOrComboId(), dto.isType());
-        if (!exists) {
-            return "❌ Món ăn hoặc Combo không tồn tại!";
-        }
+		for (OrderDetailEntity detail : details) {
+			BigDecimal lineTotal = detail.getPrice().multiply(BigDecimal.valueOf(detail.getQuantity()));
+			total = total.add(lineTotal);
+		}
 
-        // Kiểm tra món đã có trong đơn hàng chưa
-        Optional<OrderDetailEntity> optionalDetail =
-                orderDetailJPA.findByOrderIdAndDishOrComboIdAndType(
-                        dto.getOrderId(),
-                        dto.getDishOrComboId(),
-                        dto.isType()
-                );
+		return total;
+	}
 
-        if (optionalDetail.isPresent()) {
-            // Nếu đã tồn tại → cập nhật
-            OrderDetailEntity existing = optionalDetail.get();
-            existing.setQuantity(existing.getQuantity() + dto.getQuantity());
-            existing.setPrice(dto.getPrice());
-            existing.setDiscountPercentage(dto.getDiscountPercentage());
+	// Kiểm tra món đã tồn tại trong đơn hàng chưa
+	public boolean isDishOrComboExist(int id, boolean isDish) {
+		if (isDish) {
+			return dishJPA.existsById(id);
+		} else {
+			return comboJPA.existsById(id);
+		}
+	}
 
-            orderDetailJPA.save(existing);
-        } else {
-            // Nếu chưa tồn tại → thêm mới
-            OrderDetailEntity newDetail = new OrderDetailEntity();
-            newDetail.setOrder(getOrderEntityById(dto.getOrderId()));
-            newDetail.setDishOrComboId(dto.getDishOrComboId());
-            newDetail.setType(dto.isType());
-            newDetail.setPrice(dto.getPrice());
-            newDetail.setQuantity(dto.getQuantity());
-            newDetail.setDiscountPercentage(dto.getDiscountPercentage());
+	public String addOrUpdateOrderDetail(OrderDetailDTO dto) {
+		// Kiểm tra Dish/Combo có tồn tại không
+		boolean exists = isDishOrComboExist(dto.getDishOrComboId(), dto.isType());
+		if (!exists) {
+			return "❌ Món ăn hoặc Combo không tồn tại!";
+		}
 
-            orderDetailJPA.save(newDetail);
-        }
+		// Kiểm tra món đã có trong đơn hàng chưa
+		Optional<OrderDetailEntity> optionalDetail = orderDetailJPA
+				.findByOrderIdAndDishOrComboIdAndType(dto.getOrderId(), dto.getDishOrComboId(), dto.isType());
 
-        // Cập nhật lại tổng tiền đơn hàng
-        updateOrderTotal(dto.getOrderId());
+		if (optionalDetail.isPresent()) {
+			// Nếu đã tồn tại → cập nhật
+			OrderDetailEntity existing = optionalDetail.get();
+			existing.setQuantity(existing.getQuantity() + dto.getQuantity());
+			existing.setPrice(dto.getPrice());
+			existing.setDiscountPercentage(dto.getDiscountPercentage());
 
-        return "✅ Xử lý món thành công.";
-    }
+			orderDetailJPA.save(existing);
+		} else {
+			// Nếu chưa tồn tại → thêm mới
+			OrderDetailEntity newDetail = new OrderDetailEntity();
 
-    
+			newDetail.setDishOrComboId(dto.getDishOrComboId());
+			newDetail.setType(dto.isType());
+			newDetail.setPrice(dto.getPrice());
+			newDetail.setQuantity(dto.getQuantity());
+			newDetail.setDiscountPercentage(dto.getDiscountPercentage());
+
+			orderDetailJPA.save(newDetail);
+		}
+
+		// Cập nhật lại tổng tiền đơn hàng
+		updateOrderTotal(dto.getOrderId());
+
+		return "✅ Xử lý món thành công.";
+	}
 
 }
-
