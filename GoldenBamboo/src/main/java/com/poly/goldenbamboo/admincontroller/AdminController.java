@@ -56,27 +56,7 @@ public class AdminController {
 
 	// Lấy danh sách bàn theo chi nhánh
 	// Lấy chi nhánh dựa vòa cookie
-	@GetMapping("/Staff/Branch/{branchId}/Tables")
-	public Map<String, Object> getTablesByBranch(@PathVariable("branchId") Integer branchId,
-			@CookieValue("userId") Integer userId) {
 
-		Map<String, Object> res = new HashMap<>();
-
-		// Lấy chi nhánh từ userId
-		BranchDTO userBranch = accountService.getBranchByUserId(userId);
-
-		// So sánh chi nhánh từ user với chi nhánh được yêu cầu
-		if (userBranch.getId() != branchId) {
-			res.put("status", "error");
-			res.put("message", "Bạn không có quyền truy cập chi nhánh này.");
-			return res;
-		}
- 
-		// Trả danh sách bàn nếu hợp lệ
-		res.put("status", "success");
-		res.put("tables", tableService.getAllTableByBranchId(branchId));
-		return res;
-	}
 	
 
 	// Thực hiện chọn bàn và tạo hóa đơn

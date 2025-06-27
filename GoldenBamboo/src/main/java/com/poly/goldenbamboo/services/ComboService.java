@@ -19,26 +19,17 @@ import com.poly.goldenbamboo.repositories.ComboJPA;
 @Service
 public class ComboService {
     
-    private static final Logger logger = LoggerFactory.getLogger(ComboService.class);
-    
     @Autowired
     private ComboJPA comboJPA;
 
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    private final GoldenBambooApplication goldenBambooApplication;
-
     public List<ComboEntity> searchCombos(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return comboJPA.findAll();
         }
         return null;
-    }
-
-    
-    public ComboService(GoldenBambooApplication goldenBambooApplication) {
-        this.goldenBambooApplication = goldenBambooApplication;
     }
 
     public List<ComboEntity> getAllCombo() {
@@ -172,7 +163,6 @@ public class ComboService {
 
 
     public List<ComboEntity> getDefaultCombosByBranch(Integer branchId) {
-      //  return comboJPA.findDefaultMenuCombosByBranch(branchId);
-    	return null;
+     return comboJPA.findDefaultMenuCombosByBranch(branchId);
     }
 }

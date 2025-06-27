@@ -31,7 +31,7 @@ public class OrderEntity implements Serializable {
     @Column(name = "id")
     private int id;
 
-    @CreationTimestamp // Tự động điền thời gian tạo đơn hàng
+    @CreationTimestamp 
     @Column(name = "order_date", nullable = false, updatable = false)
     private Timestamp orderDate;
 
@@ -48,11 +48,11 @@ public class OrderEntity implements Serializable {
     private int status; 
     
     @Size(max = 1000, message = "Mô tả không được vượt quá 1000 ký tự")
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = true)
     private String description;
 
     @PositiveOrZero(message = "Tổng tiền phải lớn hơn hoặc bằng 0")
-    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
+    @Column(name = "total_amount", nullable = true, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
     // Liên kết với OrderDetailEntity

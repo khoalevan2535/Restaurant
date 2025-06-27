@@ -39,7 +39,7 @@ public class OrderDetailService {
     }
     
     public  OrderDetailEntity saveOrUpdateOrderDetail 	(OrderDetailDTO dto) {
-        OrderEntity order = orderService.getOrderEntityById(dto.getOrderId());
+        OrderEntity order = orderService.getOrderById(dto.getOrderId());
 
         Optional<OrderDetailEntity> existingDetailOpt = orderDetailJPA
             .findByOrderIdAndDishOrComboIdAndType(dto.getOrderId(), dto.getDishOrComboId(), dto.isType());
@@ -86,9 +86,9 @@ public class OrderDetailService {
 	        // Kiểm tra xem orderId có khớp với Order này không
 	        if (orderDetail.getOrder().getId() == orderId) {
 	            orderDetail.setQuantity(newQuantity);
-	            orderDetail = orderDetailJPA.save(orderDetail); // Lưu thay đổi vào DB
+	            orderDetail = orderDetailJPA.save(orderDetail); 
 
-	            return orderDetailMapper.toDTO(orderDetail);  // Chuyển Entity thành DTO và trả về
+	            return orderDetailMapper.toDTO(orderDetail); 
 	        }
 	    }
 	    throw new RuntimeException("Không tìm thấy món ăn với ID: " + orderDetailId);
@@ -96,7 +96,7 @@ public class OrderDetailService {
 	
 	public OrderDetailEntity addDishToOrder(OrderDetailDTO dto) {
         // Lấy order theo orderId
-        OrderEntity order = orderService.getOrderEntityById(dto.getOrderId());
+        OrderEntity order = orderService.getOrderById(dto.getOrderId());
 
         Optional<OrderDetailEntity> existingDetailOpt = orderDetailJPA
             .findByOrderIdAndDishOrComboIdAndType(dto.getOrderId(), dto.getDishOrComboId(), dto.isType());

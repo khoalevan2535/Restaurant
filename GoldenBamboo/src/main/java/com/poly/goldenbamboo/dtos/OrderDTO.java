@@ -13,6 +13,7 @@ public class OrderDTO {
     private BigDecimal prepay;
     private int status;
     private BigDecimal totalAmount;
+    private String description;
 
     private int accountId;
     private int branchId;

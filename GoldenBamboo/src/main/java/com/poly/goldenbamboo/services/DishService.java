@@ -34,8 +34,7 @@ public class DishService {
 //    }
 //	
 	public List<DishEntity> getDefaultMenuDishesByBranchAndCategory(Integer branchId, Integer categoryId) {
-	//	return dishJPA.findDefaultMenuDishesByBranchAndCategory(branchId, categoryId);
-		return null;
+		return dishJPA.findDefaultMenuDishesByBranchAndCategory(branchId, categoryId);
 	}
 	
 	public List<DishEntity> getDishesByIds(List<Integer> ids) {
