@@ -27,4 +27,6 @@ public class TableService {
 	public TableEntity getTableById(Integer tableId) {
 		return tableJPA.findById(tableId).orElseThrow(() -> new RuntimeException("Table not found"));
 	}
+	
+	
 }

@@ -1,6 +1,7 @@
 package com.poly.goldenbamboo.services;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -10,13 +11,19 @@ import org.springframework.stereotype.Service;
 
 import com.poly.goldenbamboo.dtos.OrderDTO;
 import com.poly.goldenbamboo.dtos.OrderDetailDTO;
+import com.poly.goldenbamboo.entities.AccountEntity;
 import com.poly.goldenbamboo.entities.OrderDetailEntity;
 import com.poly.goldenbamboo.entities.OrderEntity;
+import com.poly.goldenbamboo.entities.TableEntity;
 import com.poly.goldenbamboo.mappers.OrderMapper;
+import com.poly.goldenbamboo.repositories.AccountJPA;
 import com.poly.goldenbamboo.repositories.ComboJPA;
 import com.poly.goldenbamboo.repositories.DishJPA;
 import com.poly.goldenbamboo.repositories.OrderDetailJPA;
 import com.poly.goldenbamboo.repositories.OrderJPA;
+import com.poly.goldenbamboo.repositories.TableJPA;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class OrderService {
@@ -35,6 +42,13 @@ public class OrderService {
 
 	@Autowired
 	private ComboJPA comboJPA;
+	
+	@Autowired
+	private TableJPA tableJPA;
+	
+	@Autowired
+	private AccountJPA accountJPA;
+	
 
 	OrderService(DishJPA dishJPA) {
 		this.dishJPA = dishJPA;
@@ -43,7 +57,12 @@ public class OrderService {
 	public List<OrderDTO> getAllOrdersDTO() {
 		return orderRepository.findAll().stream().map(orderMapper::toDTO).collect(Collectors.toList());
 	}
-
+	
+	public OrderEntity getOrderEntityById(Integer orderId) {
+	    return orderRepository.findById(orderId)
+	            .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+	}
+	
 	public OrderDTO getOrderById(Integer orderId) {
 		// 1. Truy vấn OrderEntity từ Repository
 		OrderEntity orderEntity = orderRepository.findById(orderId)
@@ -157,5 +176,99 @@ public class OrderService {
 
 		return "✅ Xử lý món thành công.";
 	}
+	 public OrderEntity findOrderById(Integer orderId) {
+	        return orderRepository.findById(orderId)
+	                .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với ID: " + orderId));
+	    }
+	 
+	public OrderEntity checkoutOrder(Integer orderId) {
+        // BƯỚC 1: Tìm đơn hàng trong database bằng ID
+        OrderEntity order = findOrderById(orderId);
 
+        // BƯỚC 2: Tính lại tổng tiền một cách an toàn từ dữ liệu của server
+        BigDecimal finalAmount = calculateTotalAmount(orderId);
+        
+        // BƯỚC 3: Cập nhật trạng thái và tổng tiền cuối cùng cho đơn hàng
+        order.setTotalAmount(finalAmount);
+        order.setStatus(1); // Đặt trạng thái là "Đã thanh toán"
+        
+        // BƯỚC 4: Lưu lại đơn hàng đã cập nhật vào DB và trả về kết quả
+        return orderRepository.save(order);
+    }
+
+	// Trong file OrderService.java
+
+	// Trong file OrderService.java
+
+	// Trong file OrderService.java
+
+	@Transactional
+	public OrderEntity findOrCreateOrderForTable(Integer tableId, Integer accountId) {
+	    final int PAID_STATUS = 2; // Giả sử 2 là "Đã thanh toán"
+	    
+	    // 1. Tìm TẤT CẢ đơn hàng chưa thanh toán cho bàn này, sắp xếp theo ngày mới nhất
+	    List<OrderEntity> existingOrders = orderRepository.findByTableIdAndStatusNotOrderByOrderDateDesc(tableId, PAID_STATUS);
+
+	    // 2. Kiểm tra danh sách
+	    if (!existingOrders.isEmpty()) {
+	        // Nếu có, luôn lấy đơn hàng ĐẦU TIÊN (là đơn hàng mới nhất)
+	        return existingOrders.get(0); 
+	    } else {
+	        // 3. Nếu không có, tạo một đơn hàng mới (logic này không đổi)
+	        OrderEntity newOrder = new OrderEntity();
+	        TableEntity table = tableJPA.findById(tableId)
+	            .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn với ID: " + tableId));
+	        AccountEntity account = accountJPA.findById(accountId)
+	            .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản với ID: " + accountId));
+
+	        newOrder.setAccount(account);
+	        newOrder.setTable(table);
+	        if (table.getBranch() != null) {
+	            newOrder.setBranch(table.getBranch());
+	        }
+	        newOrder.setStatus(0); // PENDING
+	        newOrder.setTotalAmount(BigDecimal.ZERO);
+	        newOrder.setPrepay(BigDecimal.ZERO); 
+	        newOrder.setPaymentMethod("Tại quầy"); 
+	        newOrder.setDescription(""); 
+
+	        table.setStatus(1); // Có khách
+	        tableJPA.save(table);
+
+	        return orderRepository.save(newOrder);
+	    }
+	}
+	// Trong file OrderService.java
+
+	@Transactional
+	public OrderEntity forceCreateNewOrderForTable(Integer tableId, Integer accountId) {
+	    // Logic này chỉ tạo mới, không tìm kiếm
+	    OrderEntity newOrder = new OrderEntity();
+	    
+	    TableEntity table = tableJPA.findById(tableId)
+	        .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn với ID: " + tableId));
+	    
+	    AccountEntity account = accountJPA.findById(accountId)
+	        .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản với ID: " + accountId));
+
+	    newOrder.setAccount(account);
+	    newOrder.setTable(table);
+	    
+	    if (table.getBranch() != null) {
+	        newOrder.setBranch(table.getBranch());
+	    } else {
+	        throw new RuntimeException("Không thể xác định chi nhánh cho đơn hàng.");
+	    }
+	    
+	    // Thiết lập giá trị mặc định
+	    newOrder.setStatus(0); // PENDING
+	    newOrder.setTotalAmount(BigDecimal.ZERO);
+	    newOrder.setPrepay(BigDecimal.ZERO); 
+	    newOrder.setPaymentMethod("Tại quầy"); 
+	    newOrder.setDescription("Tách đơn hoặc đơn mới"); 
+
+	    // Không cần thay đổi trạng thái bàn vì bàn đã có khách rồi
+
+	    return orderRepository.save(newOrder);
+	}
 }

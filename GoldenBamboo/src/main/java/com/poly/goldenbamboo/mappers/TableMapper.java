@@ -10,7 +10,6 @@ public class TableMapper {
      dto.setNumber(entity.getNumber());
      dto.setStatus(entity.getStatus());
      dto.setBranchId(entity.getBranch().getId());
-     dto.setQuantity(entity.getQuantity());
      return dto;
  }
 
@@ -19,7 +18,6 @@ public class TableMapper {
      entity.setId(dto.getId());
      entity.setNumber(dto.getNumber());
      entity.setStatus(dto.getStatus());
-     entity.setQuantity(dto.getQuantity());
      return entity;
  }
 }
