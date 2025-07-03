@@ -6,7 +6,22 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -14,9 +29,6 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.CreationTimestamp;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,7 +41,7 @@ public class OrderEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Integer id;
 
     @CreationTimestamp 
     @Column(name = "order_date", nullable = false, updatable = false)
@@ -37,7 +49,7 @@ public class OrderEntity implements Serializable {
 
     @NotBlank(message = "Phương thức thanh toán không được để trống")
     @Size(max = 50, message = "Phương thức thanh toán không được vượt quá 50 ký tự")
-    @Column(name = "payment_method", nullable = false)
+    @Column(name = "payment_method", nullable = true)
     private String paymentMethod;
 
     @PositiveOrZero(message = "Tiền cọc phải lớn hơn hoặc bằng 0")
@@ -78,5 +90,6 @@ public class OrderEntity implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "table_id", nullable = true) // Có thể để null nếu đơn hàng không gắn với bàn
     @JsonIgnore
+    @JsonBackReference
     private TableEntity table;
 }

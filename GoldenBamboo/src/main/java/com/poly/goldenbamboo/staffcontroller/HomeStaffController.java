@@ -15,17 +15,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.poly.goldenbamboo.controllers.ReservationController;
 import com.poly.goldenbamboo.dtos.BranchDTO;
 import com.poly.goldenbamboo.dtos.OrderDTO;
 import com.poly.goldenbamboo.dtos.OrderDetailDTO;
+import com.poly.goldenbamboo.dtos.TableDTO;
+import com.poly.goldenbamboo.dtos.UpdateQuantityDTO;
 import com.poly.goldenbamboo.entities.CategoryEntity;
 import com.poly.goldenbamboo.entities.ComboEntity;
 import com.poly.goldenbamboo.entities.DishEntity;
 import com.poly.goldenbamboo.entities.OrderDetailEntity;
-import com.poly.goldenbamboo.entities.TableEntity;
+import com.poly.goldenbamboo.entities.OrderEntity;
 import com.poly.goldenbamboo.services.AccountService;
 import com.poly.goldenbamboo.services.BranchService;
 import com.poly.goldenbamboo.services.CategoryService;
@@ -75,75 +78,54 @@ public class HomeStaffController {
 		return accountService.getBranchByUserId(userId);
 	}
 
-//	@GetMapping("/Staff/Branch/{branchId}/Order/{orderId}/Category/{categoryId}")
-//	public Map<String, Object> orderDetailMap(@PathVariable("branchId") Integer branchId,
-//			@PathVariable("orderId") Integer orderId, @PathVariable("categoryId") Integer categoryId) {
-//
-//		Map<String, Object> response = new HashMap<>();
-//
-//		BranchDTO branch = branchService.getBranchById(branchId);
-//		List<CategoryEntity> categories = categoryService.getAllCategory();
-//
-//		List<OrderDetailDTO> orderDetails = orderDetailService.getOrderDetailsByOrderId(orderId);
-//
-//		for (OrderDetailDTO detail : orderDetails) {
-//			if (detail.isType()) {
-//				ComboEntity combo = comboService.getComboById(detail.getDishOrComboId());
-//				if (combo != null) {
-//					detail.setName(combo.getName());
-//					detail.setImage(combo.getImage());
-//					detail.setDescription(combo.getDescription());
-//				}
-//			} else {
-//				DishEntity dish = dishService.getDishById(detail.getDishOrComboId());
-//				if (dish != null) {
-//					detail.setName(dish.getName());
-//					detail.setImage(dish.getImage());
-//					detail.setDescription(dish.getDescription());
-//				}
-//			}
-//		}
-//
-//		List<ComboEntity> combos = comboService.getDefaultCombosByBranch(branchId);
-//
-//		List<DishEntity> foods = new ArrayList<>();
-//		if (categoryId != -1) {
-//			foods = dishService.getDefaultMenuDishesByBranchAndCategory(branchId, categoryId);
-//		}
-//
-//		response.put("orderDetails", orderDetails);
-//		response.put("branch", branch);
-//		response.put("categories", categories);
-//		response.put("foods", foods);
-//		response.put("combos", combos);
-//
-//		return response;
-//	}
-	
-	@GetMapping("/Staff/Branch/{branchId}/Tables")
-	public Map<String, Object> getTablesByBranch(@PathVariable("branchId") Integer branchId,
-			@CookieValue("userId") Integer userId) {
 
-		Map<String, Object> res = new HashMap<>();
-
-		// Lấy chi nhánh từ userId
-		BranchDTO userBranch = accountService.getBranchByUserId(userId);
-
-		// So sánh chi nhánh từ user với chi nhánh được yêu cầu
-		if (userBranch.getId() != branchId) {
-			res.put("status", "error");
-			res.put("message", "Bạn không có quyền truy cập chi nhánh này.");
-			return res;
-		}
- 
-		res.put("tables", tableService.getAllTableByBranchId(branchId));
-		return res;
-	}
-	
 	@PostMapping("/Staff/CreateOrder")
 	public OrderDTO createOrder(@RequestBody OrderDTO dto, @CookieValue("userId") Integer userId) {
 		dto.setAccountId(userId);
 		return orderService.createOrder(dto);
+	}
+
+
+	// Trong file OrderController.java
+
+	@PostMapping("/api/orders/find-or-create")
+	public ResponseEntity<?> findOrCreateOrderForTable(
+			@RequestBody Map<String, Integer> payload, 
+	        @CookieValue(name = "userId", required = false) Integer accountId) { // Giả sử bạn lưu userId trong cookie
+	    
+	    // Kiểm tra xem đã đăng nhập chưa
+		if (accountId == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Vui lòng đăng nhập.");
+	    }
+	    try {
+	        // Truyền accountId xuống service
+	    	Integer tableId = payload.get("tableId");
+	        OrderEntity order = orderService.findOrCreateOrderForTable(tableId, accountId);
+	        return ResponseEntity.ok(order);
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+	    }
+	}
+	
+	// Trong file OrderController.java
+
+	@PostMapping("/api/orders/force-create")
+	public ResponseEntity<?> forceCreateNewOrder(@RequestBody Map<String, Integer> payload,
+	                                             @CookieValue(name = "userId", required = false) Integer accountId) {
+	    if (accountId == null) {
+	        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Vui lòng đăng nhập.");
+	    }
+	    Integer tableId = payload.get("tableId");
+	    if (tableId == null) {
+	        return ResponseEntity.badRequest().body("Thiếu tableId.");
+	    }
+
+	    try {
+	        OrderEntity newOrder = orderService.forceCreateNewOrderForTable(tableId, accountId);
+	        return ResponseEntity.ok(newOrder);
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+	    }
 	}
 	
 	@GetMapping("/Staff/Order/{orderId}")
@@ -164,7 +146,7 @@ public class HomeStaffController {
 		Map<String, Object> res = new HashMap<>();
 
 		// 1. Lấy thông tin bàn
-		TableEntity table = tableService.getTableById(tableId);
+		List<TableDTO> tables = tableService.getAllTableByBranchId(branchId);
 
 		// 2. Lấy danh mục
 		List<CategoryEntity> categories = categoryService.getAllCategory();
@@ -197,25 +179,71 @@ public class HomeStaffController {
 		if (categoryId != -1) {
 			foods = dishService.getDefaultMenuDishesByBranchAndCategory(branchId, categoryId);
 		}
+		
+		OrderDTO order = orderService.getOrderById(orderId);
+		
 
 		// 6. Trả dữ liệu về
 		res.put("orderDetails", orderDetails);
 		res.put("categories", categories);
 		res.put("foods", foods);
 		res.put("combos", combos);
-		res.put("table", table);
+		res.put("tables", tables);
+		res.put("order", order);
 		
 
 		return res;
 	}
 	
+	@PutMapping("/api/orders/{id}")
+	public ResponseEntity<OrderDTO> updateOrder(
+	        @PathVariable("id") Integer id, 
+	        @RequestBody OrderDTO orderDTO) {
+	    try {
+	        orderDTO.setId(id); // Đảm bảo ID được set đúng
+	        OrderDTO updatedOrder = orderService.updateOrder(orderDTO);
+	        return ResponseEntity.ok(updatedOrder);
+	    } catch (RuntimeException e) {
+	        return ResponseEntity.notFound().build();
+	    }
+	}
 	
 	
+	// Đường dẫn mới, gọn hơn và chỉ cần orderId
+	@GetMapping("/Staff/Order/{orderId}/Details")
+	public Map<String, Object> getOrderDetailsOnly(@PathVariable("orderId") Integer orderId) {
+
+	    Map<String, Object> res = new HashMap<>();
+
+	    // 1. Chỉ lấy chi tiết đơn hàng
+	    List<OrderDetailDTO> orderDetails = orderDetailService.getOrderDetailsByOrderId(orderId);
+
+	    // 2. Lấy thông tin tên, ảnh cho từng chi tiết
+	    for (OrderDetailDTO detail : orderDetails) {
+	        if (detail.isType()) { // Là Combo
+	            ComboEntity combo = comboService.getComboById(detail.getDishOrComboId());
+	            if (combo != null) {
+	                detail.setName(combo.getName());
+	                detail.setImage(combo.getImage());
+	            }
+	        } else { // Là Món ăn
+	            DishEntity dish = dishService.getDishById(detail.getDishOrComboId());
+	            if (dish != null) {
+	                detail.setName(dish.getName());
+	                detail.setImage(dish.getImage());
+	            }
+	        }
+	    }
+
+	    // 3. Chỉ trả về danh sách chi tiết
+	    res.put("orderDetails", orderDetails);
+	    return res;
+	}
 	
 
 
 
-	@PostMapping("/AddFoodToOrder")
+	@PostMapping("/Order/AddFoodToOrder")
 	public OrderDetailEntity addDishToOrder(@RequestBody OrderDetailDTO dto) {
 		return orderDetailService.addDishToOrder(dto);
 	}
@@ -237,13 +265,64 @@ public class HomeStaffController {
 		}
 	}
 
-	@PutMapping("/Staff/Order/{orderId}/OrderDetail/{orderDetailId}/updateQuantity")
-	public ResponseEntity<?> updateDishQuantity(@PathVariable("orderId") int orderId,
-			@PathVariable("orderDetailId") int orderDetailId, @RequestBody Map<String, Integer> body) {
-		int quantity = body.get("quantity");
-		// Gọi service để update vào DB
-		orderService.updateQuantity(orderId, orderDetailId, quantity);
-		return ResponseEntity.ok().build();
-	}
+	// Thêm {orderId} vào URL và dùng @PathVariable
+	@PutMapping("/Order/{orderId}/UpdateQuantity")
+	public ResponseEntity<?> updateQuantity(@PathVariable Integer orderId, @RequestBody UpdateQuantityDTO dto) {
+	    try {
+	        Integer orderDetailId = dto.getOrderDetailId();
+	        Integer quantity = dto.getQuantity();
 
+	        if (orderDetailId == null || quantity == null) {
+	            return ResponseEntity.badRequest().body("Yêu cầu thiếu orderDetailId hoặc quantity.");
+	        }
+
+	        // Gọi service với đủ 3 tham số
+	        OrderDetailDTO updatedDetail = orderDetailService.updateQuantity(orderId, orderDetailId, quantity);
+	        return ResponseEntity.ok(updatedDetail);
+
+	    } catch (RuntimeException e) { // Bắt lỗi chung từ service
+	        // Có thể phân loại lỗi rõ hơn nếu service trả về các exception cụ thể
+	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+	    } catch (Exception e) {
+	        // Nên dùng logger thay cho printStackTrace
+	        // log.error("Lỗi khi cập nhật số lượng:", e);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi máy chủ khi cập nhật số lượng.");
+	    }
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	@PostMapping("/orders/{orderId}/checkout")
+    public ResponseEntity<?> checkoutOrder(@PathVariable("orderId") Integer orderId) {
+        try {
+            // Gọi phương thức checkout từ service đã được tối ưu
+            OrderEntity paidOrder = orderService.checkoutOrder(orderId);
+
+            // Tạo phản hồi thành công
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Thanh toán thành công!");
+            response.put("finalAmount", paidOrder.getTotalAmount());
+            response.put("orderStatus", paidOrder.getStatus());
+            response.put("orderId", paidOrder.getId());
+
+            return ResponseEntity.ok(response);
+
+        } catch (RuntimeException e) {
+            // Bắt lỗi nếu không tìm thấy đơn hàng (từ findOrderById)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            // Bắt các lỗi không mong muốn khác
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("Lỗi máy chủ trong quá trình thanh toán: " + e.getMessage());
+        }
+    }
 }

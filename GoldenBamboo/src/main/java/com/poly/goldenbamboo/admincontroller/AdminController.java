@@ -55,7 +55,7 @@ public class AdminController {
 	private AccountService accountService;
 
 	// Lấy danh sách bàn theo chi nhánh
-	// Lấy chi nhánh dựa vòa cookie
+
 
 	
 
@@ -74,11 +74,5 @@ public class AdminController {
 		return orderService.createOrder(dto);
 	}
 
-
-
-	@PostMapping("/Order/AddDishToOrder")
-	public OrderDetailEntity addDishToOrder(@RequestBody OrderDetailDTO dto) {
-		return orderDetailService.addDishToOrder(dto); 
-	}
 
 }

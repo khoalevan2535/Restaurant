@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.poly.goldenbamboo.dtos.OrderDetailDTO;
 import com.poly.goldenbamboo.entities.OrderDetailEntity;
 
 public interface OrderDetailJPA extends JpaRepository<OrderDetailEntity, Integer> {
@@ -18,5 +19,9 @@ public interface OrderDetailJPA extends JpaRepository<OrderDetailEntity, Integer
 	    @Param("dishOrComboId") Integer dishOrComboId,
 	    @Param("type") boolean type
 	);
+	
+//	OrderDetailDTO updateQuantity(Integer orderDetailId, Integer quantity);
+//    
+//    void removeOrderDetailById(Integer detailId);
 
 }

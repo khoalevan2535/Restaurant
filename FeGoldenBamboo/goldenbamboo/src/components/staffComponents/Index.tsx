@@ -1,257 +1,255 @@
-import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLockOpen, faLock, faUserClock } from '@fortawesome/free-solid-svg-icons';
-import { Link, useParams } from 'react-router-dom';
-import orderStaffService from '../../services/staffService/Index.tsx'; // Đảm bảo đường dẫn đúng
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { orderStaffService } from '../../services/staffService/Index.tsx';
+import { toast } from 'react-toastify';
 
-// Định nghĩa kiểu dữ liệu cho dữ liệu từ backend (Rất khuyến khích cho TypeScript)
-// Bạn có thể đặt các interface này vào một file riêng như 'types.ts' và import vào
+// Import các component con
+import TableList from '../../components/staffComponents/TableList.tsx';
+import MenuDisplay from '../../components/staffComponents/MenuDisplay.tsx';
+import OrderSummary from '../../components/staffComponents/OrderSummary.tsx';
+
+// --- Định nghĩa Interfaces ---
 interface OrderDetailDTO {
     id: number;
     orderId: number;
     dishOrComboId: number;
     price: number;
     quantity: number;
-    type: boolean; // true = Combo, false = Dish
-    discountPercentage: number;
+    type: boolean;
     name: string | null;
     image: string | null;
-    description: string | null;
-    branchId: number;
 }
-
 interface FoodEntity {
     id: number;
     description: string | null;
     image: string | null;
     name: string;
     price: number;
-    status: boolean;
 }
-
-interface ComboEntity {
-    id: number;
-    description: string | null;
-    image: string | null;
-    name: string;
-    price: number;
-    status: boolean;
-}
-
+interface ComboEntity extends FoodEntity {}
 interface CategoryEntity {
     id: number;
     name: string;
 }
-
 interface TableEntity {
     id: number;
-    number: string; // Theo JSON mẫu, 'number' là string
-    quantity: number; // Trong JSON mẫu là 'quantity' thay vì 'capacity'
+    number: string;
     status: number;
+    branchId: number;
 }
-
+interface OrderEntity {
+    id: number;
+    description: string;
+    paymentMethod: string;
+}
 interface OrderPageData {
     orderDetails: OrderDetailDTO[];
     foods: FoodEntity[];
     combos: ComboEntity[];
     categories: CategoryEntity[];
-    table: TableEntity;
+    tables: TableEntity[];
+    order: OrderEntity;
 }
 
-
 export default function Index() {
-    // Sử dụng useState với kiểu dữ liệu cụ thể
+    // --- State Management ---
     const [orderDetails, setOrderDetails] = useState<OrderDetailDTO[]>([]);
     const [categories, setCategories] = useState<CategoryEntity[]>([]);
     const [foods, setFoods] = useState<FoodEntity[]>([]);
     const [combos, setCombos] = useState<ComboEntity[]>([]);
-    const [table, setTable] = useState<TableEntity | null>(null); // Có thể là null ban đầu
-    const [loading, setLoading] = useState<boolean>(true);
+    const [tables, setTables] = useState<TableEntity[]>([]);
+    const [currentOrder, setCurrentOrder] = useState<OrderEntity | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [justAddedId, setJustAddedId] = useState<number | null>(null);
 
-    // Lấy các tham số từ URL
     const { branchId, tableId, orderId, categoryId } = useParams<{
         branchId: string;
         tableId: string;
         orderId: string;
         categoryId: string;
     }>();
+    const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                // Kiểm tra sự tồn tại của tham số trước khi parse
-                if (!branchId || !tableId || !orderId || !categoryId) {
-                    throw new Error("Thiếu tham số cần thiết trong URL. Vui lòng kiểm tra đường dẫn.");
-                }
-
-                // Chuyển đổi các tham số từ string sang number
-                const parsedBranchId = parseInt(branchId);
-                const parsedTableId = parseInt(tableId);
-                const parsedOrderId = parseInt(orderId);
-                const parsedCategoryId = parseInt(categoryId); // Đây là ID danh mục hoặc -1 cho combo
-
-                // Kiểm tra kết quả parse có phải là NaN không
-                if (isNaN(parsedBranchId) || isNaN(parsedTableId) || isNaN(parsedOrderId) || isNaN(parsedCategoryId)) {
-                    throw new Error("Tham số trong URL không hợp lệ (không phải số). Vui lòng kiểm tra đường dẫn.");
-                }
-
-                // Gọi service để lấy dữ liệu
-                const data: OrderPageData = await orderStaffService.getOrderPageData(
-                    parsedBranchId,
-                    parsedTableId,
-                    parsedOrderId,
-                    parsedCategoryId
-                );
-
-                // Cập nhật state với dữ liệu nhận được
-                setOrderDetails(data.orderDetails || []);
-                setCategories(data.categories || []);
-                setFoods(data.foods || []);
+    // --- Data Fetching & Logic ---
+    const fetchMenu = useCallback(async () => {
+        if (!branchId || !tableId || !orderId || !categoryId) return;
+        setFoods([]);
+        setCombos([]);
+        try {
+            const data = await orderStaffService.getOrderPageData(parseInt(branchId), parseInt(tableId), parseInt(orderId), parseInt(categoryId));
+            if (parseInt(categoryId) === -1) {
                 setCombos(data.combos || []);
-                setTable(data.table || null);
-
-            } catch (err: any) {
-                console.error("Failed to fetch data:", err);
-                setError(err.message || "Không thể tải dữ liệu. Vui lòng thử lại sau.");
-            } finally {
-                setLoading(false);
+            } else {
+                setFoods(data.foods || []);
             }
-        };
-
-        fetchData();
-        // Dependencies array
+        } catch (err: any) {
+            toast.error("Lỗi khi tải menu: " + err.message);
+        }
     }, [branchId, tableId, orderId, categoryId]);
 
-    if (loading) {
-        return <div className="text-center mt-5">Đang tải dữ liệu...</div>;
-    }
+    const fetchInitialStaticData = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            if (!branchId || !tableId || !orderId) return;
+            const data: OrderPageData = await orderStaffService.getOrderPageData(parseInt(branchId), parseInt(tableId), parseInt(orderId), -1);
+            setTables(data.tables || []);
+            setCategories(data.categories || []);
+            setOrderDetails(data.orderDetails || []);
+            setCurrentOrder(data.order || null);
+        } catch (err: any) {
+            setError(err.message || "Không thể tải dữ liệu.");
+        } finally {
+            setLoading(false);
+        }
+    }, [branchId, tableId, orderId]);
 
-    if (error) {
-        return <div className="alert alert-danger text-center mt-5">{error}</div>;
-    }
+    useEffect(() => {
+        fetchInitialStaticData();
+    }, [fetchInitialStaticData]);
 
-    // Hàm để chọn icon dựa trên trạng thái bàn
-    const getTableIcon = (status: number) => {
-        switch (status) {
-            case 0: // Ví dụ: 0 là bàn trống (Open)
-                return faLockOpen;
-            case 1: // Ví dụ: 1 là bàn đang có người (Occupied)
-                return faLock;
-            case 2: // Ví dụ: 2 là bàn đang chờ dọn (Cleaning/UserClock)
-                return faUserClock;
-            default:
-                return faLockOpen;
+    useEffect(() => {
+        fetchMenu();
+    }, [fetchMenu]);
+
+    const fetchOrderDetails = useCallback(async () => {
+        if (!orderId) return;
+        try {
+            const data = await orderStaffService.getOrderDetailData(parseInt(orderId));
+            setOrderDetails(data.orderDetails || []);
+        } catch (err: any) {
+            toast.error("Lỗi khi cập nhật giỏ hàng: " + err.message);
+        }
+    }, [orderId]);
+
+    // --- Các hàm xử lý sự kiện ---
+    const handleAddToOrder = async (item: FoodEntity | ComboEntity, isCombo: boolean) => {
+        if (!orderId || !branchId) { toast.error("Không tìm thấy mã đơn hàng."); return; }
+        try {
+            await orderStaffService.addToOrder({
+                orderId: parseInt(orderId), dishOrComboId: item.id, price: item.price,
+                quantity: 1, type: isCombo, branchId: parseInt(branchId),
+            });
+            toast.success(`Đã thêm "${item.name}"`);
+            setJustAddedId(item.id);
+            setTimeout(() => setJustAddedId(null), 1500);
+            fetchOrderDetails();
+        } catch (err: any) {
+            toast.error("Thêm món thất bại: " + err.message);
         }
     };
 
+    const handleUpdateQuantity = async (detailId: number, newQuantity: number) => {
+        if (!orderId) { toast.error("Không tìm thấy mã đơn hàng!"); return; }
+        if (newQuantity <= 0) {
+            if (window.confirm('Bạn có muốn xóa món này không?')) {
+                try {
+                    await orderStaffService.removeOrderDetail(detailId);
+                    toast.warn("Đã xóa món.");
+                    fetchOrderDetails();
+                } catch (err: any) {
+                    toast.error("Xóa món thất bại: " + err.message);
+                }
+            }
+            return;
+        }
+        try {
+            await orderStaffService.updateOrderDetail(parseInt(orderId), detailId, newQuantity);
+            fetchOrderDetails();
+        } catch (err: any) {
+            toast.error("Cập nhật thất bại: " + err.message);
+        }
+    };
+
+    const handleCheckout = async () => {
+        if (!orderId) { toast.error("Không tìm thấy mã đơn hàng!"); return; }
+        if (window.confirm("Bạn có chắc chắn muốn thanh toán đơn hàng này không?")) {
+            try {
+                const result = await orderStaffService.checkoutOrder(parseInt(orderId));
+                toast.success(result.message || "Thanh toán thành công!");
+                setTimeout(() => { navigate(`/Staff/Branch/${branchId}/Dashboard`); }, 2000);
+            } catch (err: any) {
+                toast.error("Thanh toán thất bại: " + err.message);
+            }
+        }
+    };
+    
+    const handleCreateNewOrder = async () => {
+        if (!tableId || !branchId) {
+            toast.error("Không tìm thấy thông tin bàn hoặc chi nhánh!");
+            return;
+        }
+        if (window.confirm("Tạo một đơn hàng mới cho bàn này? Đơn hàng hiện tại sẽ được giữ lại.")) {
+            try {
+                const newOrder = await orderStaffService.forceCreateNewOrder(parseInt(tableId));
+                if (newOrder && newOrder.id) {
+                    toast.success("Đã tạo đơn hàng mới thành công!");
+                    navigate(`/Staff/Branch/${branchId}/Table/${tableId}/Order/${newOrder.id}/Category/-1`);
+                }
+            } catch (err: any) {
+                toast.error("Tạo đơn hàng mới thất bại: " + err.message);
+            }
+        }
+    };
+
+    const handleSwitchTable = async (table: TableEntity) => {
+        if (table.id.toString() === tableId) return; 
+        try {
+            toast.info(`Chuyển đến bàn ${table.number}...`);
+            const order = await orderStaffService.findOrCreateOrder(table.id);
+            if (order && order.id) {
+                navigate(`/Staff/Branch/${branchId}/Table/${table.id}/Order/${order.id}/Category/-1`);
+            } else {
+                toast.error("Không nhận được thông tin đơn hàng cho bàn đã chọn.");
+            }
+        } catch (err: any) {
+            toast.error("Có lỗi khi chuyển bàn: " + err.message);
+        }
+    };
+
+    const handleUpdateOrder = async (updatedData: { description: string, paymentMethod: string }) => {
+        if (!currentOrder) {
+            toast.error("Không có thông tin đơn hàng để cập nhật.");
+            return;
+        }
+        const orderToUpdate = { ...currentOrder, ...updatedData };
+        try {
+            // Giả sử service của bạn có hàm `updateOrder(orderId, data)`
+            await orderStaffService.updateOrder(currentOrder.id, orderToUpdate);
+            toast.success("Cập nhật đơn hàng thành công!");
+        } catch (err: any) {
+            toast.error("Cập nhật thất bại: " + err.message);
+        }
+    };
+
+    if (loading) return <div className="text-center mt-5">Đang tải dữ liệu...</div>;
+    if (error) return <div className="alert alert-danger text-center mt-5">{error}</div>;
+
+    // --- Render ---
     return (
         <div className='container-fluid'>
             <div className='row border'>
-                <div className='col-3 border '>
-                    <h1 className='text-center'>Tables</h1>
-                    <p className='text-center'>This is the tables page.</p>
-                    <div className='row p-2'>
-                        {/* Hiển thị thông tin bàn được lấy từ BE */}
-                        {table && (
-                            <div className='col-12 card p-3 mb-2'>
-                                <FontAwesomeIcon icon={getTableIcon(table.status)} />
-                                Bàn {table.id} - {table.number} {/* Sửa từ table.name thành table.number */}
-                                <p>Số chỗ: {table.quantity}</p> {/* Sửa từ table.capacity thành table.quantity */}
-                            </div>
-                        )}
-                        {/* Hiện tại chỉ hiển thị bàn đang chọn, nếu muốn hiển thị tất cả bàn thì cần API riêng */}
-                    </div>
-                </div>
-                <div className='col-9'>
-                    <h1 className='text-center'>Staff</h1>
-                    <p className='text-center'>This is the staff page.</p>
-                    <nav className="navbar navbar-expand-lg bg-body-tertiary">
-                        <div className="container-fluid">
-                            {/* Chuyển hướng đến Combos */}
-                            <Link className="navbar-brand" to={`/Staff/Branch/${branchId}/Table/${tableId}/Order/${orderId}/Category/-1`}>Combo</Link>
-                            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                                <span className="navbar-toggler-icon"></span>
-                            </button>
-                            <div className="collapse navbar-collapse" id="navbarNav">
-                                <ul className="navbar-nav">
-                                    {/* Duyệt qua danh mục từ BE và tạo link */}
-                                    {categories.map((cat) => (
-                                        <li className="nav-item" key={cat.id}>
-                                            <Link
-                                                className="nav-link"
-                                                to={`/Staff/Branch/${branchId}/Table/${tableId}/Order/${orderId}/Category/${cat.id}`}
-                                            >
-                                                {cat.name}
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
-                    </nav>
-                    <div className='row border'>
-                        {/* Hiển thị Combos */}
-                        {parseInt(categoryId ?? "-1") === -1 && combos.map((combo) => ( // So sánh với số sau khi parse
-                            <div className='col-3 card p-3' key={combo.id}>
-                                {combo.image && <img src={combo.image} alt={combo.name} style={{ width: '100%', height: 'auto' }} />}
-                                {!combo.image && <div style={{ width: '100%', height: '100px', backgroundColor: '#e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>No Image</div>}
-                                <h5>{combo.name}</h5>
-                                <p>{combo.description}</p>
-                                <p>Giá: {combo.price.toLocaleString('vi-VN')} VNĐ</p> {/* Định dạng tiền tệ */}
-                                {/* Thêm nút chọn món hoặc combo */}
-                            </div>
-                        ))}
-
-                        {/* Hiển thị Món ăn theo category */}
-                        {parseInt(categoryId ?? "-1") !== -1 && foods.map((dish) => ( // So sánh với số sau khi parse
-                            <div className='col-3 card p-3' key={dish.id}>
-                                {dish.image && <img src={dish.image} alt={dish.name} style={{ width: '100%', height: 'auto' }} />}
-                                {!dish.image && <div style={{ width: '100%', height: '100px', backgroundColor: '#e0e0e0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>No Image</div>}
-                                <h5>{dish.name}</h5>
-                                <p>{dish.description}</p>
-                                <p>Giá: {dish.price.toLocaleString('vi-VN')} VNĐ</p> {/* Định dạng tiền tệ */}
-                                {/* Thêm nút chọn món */}
-                            </div>
-                        ))}
-                    </div>
-
-                    <hr />
-
-                    {/* Hiển thị chi tiết đơn hàng */}
-                    <h2 className='text-center mt-3'>Chi tiết đơn hàng</h2>
-                    <table className="table table-bordered mt-3">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Tên</th>
-                                <th>Số lượng</th>
-                                <th>Giá</th>
-                                <th>Loại</th>
-                                {/* Thêm cột hành động nếu cần (tăng/giảm số lượng, xóa) */}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orderDetails.length > 0 ? (
-                                orderDetails.map((detail, index) => (
-                                    <tr key={index}>
-                                        <td>{index + 1}</td>
-                                        <td>{detail.name || 'N/A'}</td> {/* Xử lý name là null */}
-                                        <td>{detail.quantity}</td>
-                                        <td>{detail.price.toLocaleString('vi-VN')} VNĐ</td> {/* Định dạng tiền tệ */}
-                                        <td>{detail.type ? "Combo" : "Món ăn"}</td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={5} className="text-center">Chưa có món nào trong đơn hàng.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                <TableList 
+                    tables={tables} 
+                    onTableSelect={handleSwitchTable} 
+                />
+                <MenuDisplay 
+                    categories={categories}
+                    combos={combos}
+                    foods={foods}
+                    handleAddToOrder={handleAddToOrder}
+                    justAddedId={justAddedId}
+                    params={{ branchId, tableId, orderId, categoryId }}
+                />
+                <OrderSummary 
+                    orderData={currentOrder}
+                    orderDetails={orderDetails}
+                    handleUpdateQuantity={handleUpdateQuantity}
+                    handleCheckout={handleCheckout}
+                    handleCreateNewOrder={handleCreateNewOrder}
+                    handleUpdateOrder={handleUpdateOrder}
+                />
             </div>
         </div>
     );

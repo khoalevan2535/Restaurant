@@ -1,38 +1,147 @@
+import axios from "axios";
 import { API_URL } from "../../configs/api_url";
 
-const orderStaffService = {
-  /**
-   * Lấy tất cả thông tin cần thiết cho trang Order của nhân viên.
-   * @param {number} branchId ID của chi nhánh.
-   * @param {number} tableId ID của bàn.
-   * @param {number} orderId ID của đơn hàng.
-   * @param {number} categoryId ID của danh mục (-1 nếu muốn lấy tất cả món ăn).
-   * @returns {Promise<Object>} Một Promise chứa dữ liệu JSON từ backend.
-   */
-  getOrderPageData: async (branchId, tableId, orderId, categoryId) => {
-    try {
-      const url = `${API_URL}/Staff/Branch/${branchId}/Table/${tableId}/Order/${orderId}/Category/${categoryId}`;
-
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({ message: "Unknown error" }));
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorBody.message || response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Lỗi khi lấy dữ liệu trang Order của nhân viên:", error);
-      // Bạn có thể ném lại lỗi để component gọi hàm này xử lý cụ thể hơn
-      throw error;
+// Hàm xử lý lỗi dùng chung cho axios
+function handleAxiosError(error) {
+    if (error.response) {
+        // Server trả về lỗi
+        const message = error.response.data?.message || error.response.statusText;
+        throw new Error(`HTTP error! status: ${error.response.status}, message: ${message}`);
+    } else if (error.request) {
+        throw new Error("No response from server.");
+    } else {
+        throw new Error(error.message);
     }
-  },
+}
 
-  // Bạn có thể thêm các hàm khác vào đây nếu có các API khác liên quan đến order, table, category, v.v.
-  // Ví dụ:
-  // getTableById: async (tableId) => { ... }
-  // createOrder: async (orderData) => { ... }
+const orderStaffService = {
+    /**
+     * Lấy dữ liệu trang order của nhân viên
+     */
+    getOrderPageData: async (branchId, tableId, orderId, categoryId) => {
+        try {
+            const url = `${API_URL}/Staff/Branch/${branchId}/Table/${tableId}/Order/${orderId}/Category/${categoryId}`;
+            const response = await axios.get(url);
+            return response.data;
+        } catch (error) {
+            handleAxiosError(error);
+        }
+    },
+
+    // MỚI: Hàm bị thiếu để lấy chi tiết đơn hàng
+    getOrderDetailData: async (orderId) => {
+        try {
+            // API này đã được tối ưu ở backend để chỉ trả về orderDetails
+            const url = `${API_URL}/Staff/Order/${orderId}/Details`;
+            const response = await axios.get(url);
+            return response.data;
+        } catch (error) {
+            handleAxiosError(error);
+        }
+    },
+
+    /**
+     * Thêm món vào đơn hàng
+     */
+    addToOrder: async (data) => {
+        try {
+            const url = `${API_URL}/Order/AddFoodToOrder`;
+            const response = await axios.post(url, data, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            return response.data;
+        } catch (error) {
+            handleAxiosError(error);
+        }
+    },
+
+    /**
+     * Cập nhật số lượng món trong đơn hàng
+     */
+    updateOrderDetail: async (orderId, detailId, quantity) => {
+        try {
+            const url = `${API_URL}/Order/${orderId}/UpdateQuantity`;
+            const response = await axios.put(url, { orderDetailId: detailId, quantity: quantity }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            return response.data;
+        } catch (error) {
+            handleAxiosError(error);
+        }
+    },
+
+    /**
+     * Xóa một món khỏi đơn hàng
+     */
+    removeOrderDetail: async (detailId) => {
+        try {
+            const url = `${API_URL}/Order/RemoveFood/${detailId}`;
+            const response = await axios.delete(url);
+            return response.data;
+        } catch (error) {
+            handleAxiosError(error);
+        }
+    },
+
+    checkoutOrder: async (orderId) => {
+        try {
+            const url = `${API_URL}/api/orders/${orderId}/checkout`;
+            const response = await axios.post(url);
+            return response.data;
+        } catch (error) {
+            handleAxiosError(error);
+        }
+    },
+    
+    // MỚI: Hàm lấy danh sách bàn theo chi nhánh
+    getTablesByBranch: async (branchId) => {
+        try {
+            // API này chúng ta đã tạo ở backend
+            const url = `${API_URL}/api/tables/branch/${branchId}`; 
+            const response = await axios.get(url);
+            return response.data;
+        } catch (error) {
+            handleAxiosError(error);
+        }
+    },
+
+   // Trong orderStaffService
+
+findOrCreateOrder: async (tableId) => {
+    try {
+        // URL giờ đây sẽ gọn hơn, không còn tham số
+        const url = `${API_URL}/api/orders/find-or-create`;
+        // Gửi tableId dưới dạng một object JSON trong body
+        const response = await axios.post(url, { tableId: tableId });
+        console.log("Phản hồi đầy đủ từ backend:", response);
+            console.log("Dữ liệu nhận được (response.data):", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Chi tiết lỗi:", error.response);
+        handleAxiosError(error);
+    }
+},
+
+ forceCreateNewOrder: async (tableId) => {
+        try {
+            const url = `${API_URL}/api/orders/force-create`;
+            const response = await axios.post(url, { tableId: tableId });
+            return response.data;
+        } catch (error) {
+            handleAxiosError(error);
+        }
+    },
+     updateOrder: async (orderId, orderData) => {
+        try {
+            // API này bạn cần có ở backend để cập nhật thông tin order
+            const url = `${API_URL}/api/orders/${orderId}`;
+            const response = await axios.put(url, orderData);
+            return response.data;
+        } catch (error) {
+            handleAxiosError(error);
+        }
+    },
 };
 
-export default orderStaffService;
+
+export { orderStaffService };
