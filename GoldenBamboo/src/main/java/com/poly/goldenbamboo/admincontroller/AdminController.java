@@ -24,7 +24,7 @@ import com.poly.goldenbamboo.entities.OrderDetailEntity;
 import com.poly.goldenbamboo.entities.TableEntity;
 import com.poly.goldenbamboo.services.AccountService;
 import com.poly.goldenbamboo.services.CategoryService;
-import com.poly.goldenbamboo.services.ComboService;
+//import com.poly.goldenbamboo.services.ComboService;
 import com.poly.goldenbamboo.services.DishService;
 import com.poly.goldenbamboo.services.OrderDetailService;
 import com.poly.goldenbamboo.services.OrderService;
@@ -45,8 +45,8 @@ public class AdminController {
 	@Autowired
 	private OrderDetailService orderDetailService;
 
-	@Autowired
-	private ComboService comboService;
+//	@Autowired
+//	private ComboService comboService;
 
 	@Autowired
 	private DishService dishService;
