@@ -1,66 +1,62 @@
+// src/services/staffService/comboService.js
 import axios from "axios";
 
 const API_URL = "http://localhost:8080/Combo";
 
 export const getCombos = async () => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(`${API_URL}`);
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to fetch combos");
+    console.error("Lỗi khi lấy danh sách combo:", error);
+    throw new Error(error.response?.data?.message || "Lỗi khi lấy danh sách combo");
+  }
+};
+
+export const getComboById = async (id) => {
+  try {
+    const response = await axios.get(`${API_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Lỗi khi lấy combo theo ID:", error);
+    throw new Error(error.response?.data?.message || "Lỗi khi lấy combo theo ID");
   }
 };
 
 export const createCombo = async (formData) => {
   try {
-    const response = await axios.post(API_URL, formData, {
+    const response = await axios.post(`${API_URL}/Manager/Combo/Add`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    });    
+    });
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to create combo");
+    console.error("Lỗi khi tạo combo:", error);
+    throw new Error(error.response?.data?.message || "Lỗi khi tạo combo");
   }
 };
 
 export const updateCombo = async (id, formData) => {
   try {
-    const response = await axios.patch(`${API_URL}/${id}`, formData, {
+    const response = await axios.put(`${API_URL}/Manager/Combo/Update/${id}`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
   } catch (error) {
-    console.error("Error details:", error);
-    if (error.response) {
-      console.error("Response data:", error.response.data); 
-      throw new Error(error.response.data.message || "Failed to update combo");
-    } else if (error.request) {
-      throw new Error("Failed to send request to update combo");
-    } else {
-      throw new Error("An unexpected error occurred while updating combo");
-    }
+    console.error("Lỗi khi cập nhật combo:", error);
+    throw new Error(error.response?.data?.message || "Lỗi khi cập nhật combo");
   }
 };
 
 export const deleteCombo = async (id) => {
   try {
-    const response = await axios.delete(`${API_URL}/${id}`);
-    return response.data; 
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to delete combo");
-  }
-};
-
-export const searchCombos = async (keyword) => {
-  try {
-    const response = await axios.get(`${API_URL}/search`, {
-      params: { keyword },
-    });
+    const response = await axios.delete(`${API_URL}/Manager/Combo/Delete/${id}`);
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to search combos");
+    console.error("Lỗi khi xóa combo:", error);
+    throw new Error(error.response?.data?.message || "Lỗi khi xóa combo");
   }
 };

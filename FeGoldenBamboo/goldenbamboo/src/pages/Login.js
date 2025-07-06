@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../pages/Login.css";
 import logo from "../assets/logos/VanKhoadark.png";
@@ -46,7 +46,6 @@ export default function Login() {
 
     try {
       const result = await LoginService.login(phone, password);
-
       if (result.success) {
         navigate("/");
       } else {
@@ -73,12 +72,22 @@ export default function Login() {
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label className="form-label fw-bold">Số điện thoại</label>
-              <input type="text" className="form-control" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <input
+                type="text"
+                className="form-control"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
               {phoneError && <div className="text-danger">{phoneError}</div>}
             </div>
             <div className="mb-3">
               <label className="form-label fw-bold">Mật khẩu</label>
-              <input type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <input
+                type="password"
+                className="form-control"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
               {passwordError && <div className="text-danger">{passwordError}</div>}
               <p>
                 <a className="link-opacity-50 text-decoration-none" href="#">
@@ -94,7 +103,18 @@ export default function Login() {
               {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
             </button>
           </form>
+
+          {/* Nút đăng nhập bằng Google */}
+          <div className="text-center mt-3">
+            <a
+              className="btn btn-outline-danger rounded-pill w-75"
+              href="http://localhost:8080/oauth2/authorization/google"
+            >
+              Đăng nhập bằng Google
+            </a>
+          </div>
         </div>
+
         {responseMessage && !phoneError && !passwordError && (
           <div className="alert alert-info mt-3" role="alert">
             {responseMessage}
