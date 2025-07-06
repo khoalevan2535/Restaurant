@@ -26,10 +26,16 @@ import FoodUpdate from "../components/adminComponents/Food/FoodUpdate";
 import FoodDelete from "../components/adminComponents/Food/FoodDelete";
 
 // Combo
-import ComboList from "../components/adminComponents/Combo/ComboList";
-import ComboCreate from "../components/adminComponents/Combo/ComboCreate";
-import ComboUpdate from "../components/adminComponents/Combo/ComboUpdate";
-import ComboDelete from "../components/adminComponents/Combo/ComboDelete";
+import ComboTable from "../components/adminComponents/Combo/Combo.js"; 
+import ComboCreate from "../components/adminComponents/Combo/ComboCreate.tsx";
+import ComboUpdate from "../components/adminComponents/Combo/ComboUpdate.tsx";
+import ComboDelete from "../components/adminComponents/Combo/ComboDelete.tsx";
+
+// Giảm giá
+import DiscountTable from "../components/adminComponents/Discount/Discount.js"; 
+import DiscountCreate from "../components/adminComponents/Discount/DiscountCreate.tsx";
+import DiscountUpdate from "../components/adminComponents/Discount/DiscountUpdate.tsx";
+import DiscountDelete from "../components/adminComponents/Discount/DiscountDelete.tsx";
 
 // Combo chi tiết
 import ComboDetailList from "../components/adminComponents/ComboDetail/ComboDetailList";
@@ -49,17 +55,11 @@ import MenuDetailCreate from "../components/adminComponents/MenuDetail/MenuDetai
 import MenuDetailUpdate from "../components/adminComponents/MenuDetail/MenuDetailUpdate";
 import MenuDetailDelete from "../components/adminComponents/MenuDetail/MenuDetailDelete";
 
-// Giảm giá
-import DiscountList from "../components/adminComponents/Discount/DiscountList";
-import DiscountCreate from "../components/adminComponents/Discount/DiscountCreate";
-import DiscountUpdate from "../components/adminComponents/Discount/DiscountUpdate";
-import DiscountDelete from "../components/adminComponents/Discount/DiscountDelete";
-
 // Giảm giá chi tiết
-import DiscountDetailList from "../components/adminComponents/DiscountDetail/DiscountDetailList";
-import DiscountDetailCreate from "../components/adminComponents/DiscountDetail/DiscountDetailCreate";
-import DiscountDetailUpdate from "../components/adminComponents/DiscountDetail/DiscountDetailUpdate";
-import DiscountDetailDelete from "../components/adminComponents/DiscountDetail/DiscountDetailDelete";
+import DiscountComboTable from "../components/adminComponents/DiscountDetail/DiscountDetailList.js";
+import DiscountDetailCreate from "../components/adminComponents/DiscountDetail/DiscountDetailCreate.tsx";
+import DiscountDetailUpdate from "../components/adminComponents/DiscountDetail/DiscountDetailUpdate.tsx";
+import DiscountDetailDelete from "../components/adminComponents/DiscountDetail/DiscountDetailDelete.tsx";
 
 // Thông tin tài khoản
 import UserInfo from "../pages/UserInfo.tsx";
@@ -77,55 +77,55 @@ export default function AdminRouter() {
         <Route path="Branch/Detail/:branchId" element={<BranchDetail />} />
 
         {/* Bàn ăn */}
-        <Route path="Table/List" element={<TableList />} />
+        {/* <Route path="Table/List" element={<TableList />} />
         <Route path="Table/Create" element={<TableCreate />} />
         <Route path="Table/Update/:tableId" element={<TableUpdate />} />
-        <Route path="Table/Delete/:tableId" element={<TableDelete />} />
+        <Route path="Table/Delete/:tableId" element={<TableDelete />} /> */}
 
         {/* Thể loại món ăn */}
-        <Route path="Category/List" element={<CategoryList />} />
+        {/* <Route path="Category/List" element={<CategoryList />} />
         <Route path="Category/Create" element={<CategoryCreate />} />
         <Route path="Category/Update/:categoryId" element={<CategoryUpdate />} />
-        <Route path="Category/Delete/:categoryId" element={<CategoryDelete />} />
+        <Route path="Category/Delete/:categoryId" element={<CategoryDelete />} /> */}
 
         {/* Món ăn */}
-        <Route path="Food/List" element={<FoodList />} />
+        {/* <Route path="Food/List" element={<FoodList />} />
         <Route path="Food/Create" element={<FoodCreate />} />
         <Route path="Food/Update/:foodId" element={<FoodUpdate />} />
-        <Route path="Food/Delete/:foodId" element={<FoodDelete />} />
-
-        {/* Combo */}
-        <Route path="Combo/List" element={<ComboList />} />
-        <Route path="Combo/Create" element={<ComboCreate />} />
-        <Route path="Combo/Update/:comboId" element={<ComboUpdate />} />
-        <Route path="Combo/Delete/:comboId" element={<ComboDelete />} />
+        <Route path="Food/Delete/:foodId" element={<FoodDelete />} /> */}
 
         {/* Combo chi tiết */}
-        <Route path="ComboDetail/List" element={<ComboDetailList />} />
+        {/* <Route path="ComboDetail/List" element={<ComboDetailList />} />
         <Route path="ComboDetail/Create" element={<ComboDetailCreate />} />
         <Route path="ComboDetail/Update/:comboDetailId" element={<ComboDetailUpdate />} />
-        <Route path="ComboDetail/Delete/:comboDetailId" element={<ComboDetailDelete />} />
+        <Route path="ComboDetail/Delete/:comboDetailId" element={<ComboDetailDelete />} /> */}
 
         {/* Menu */}
-        <Route path="Menu/List" element={<MenuList />} />
+        {/* <Route path="Menu/List" element={<MenuList />} />
         <Route path="Menu/Create" element={<MenuCreate />} />
         <Route path="Menu/Update/:menuId" element={<MenuUpdate />} />
-        <Route path="Menu/Delete/:menuId" element={<MenuDelete />} />
+        <Route path="Menu/Delete/:menuId" element={<MenuDelete />} /> */}
 
         {/* Menu chi tiết */}
-        <Route path="MenuDetail/List" element={<MenuDetailList />} />
+        {/* <Route path="MenuDetail/List" element={<MenuDetailList />} />
         <Route path="MenuDetail/Create" element={<MenuDetailCreate />} />
         <Route path="MenuDetail/Update/:menuDetailId" element={<MenuDetailUpdate />} />
-        <Route path="MenuDetail/Delete/:menuDetailId" element={<MenuDetailDelete />} />
+        <Route path="MenuDetail/Delete/:menuDetailId" element={<MenuDetailDelete />} /> */}
+
+        {/* Combo */}
+        <Route path="Combo/List" element={<ComboTable />} />
+        <Route path="Combo/Create" element={<ComboCreate />} />
+        <Route path="Combo/Update/:id" element={<ComboUpdate />} />
+        <Route path="Combo/Delete/:id" element={<ComboDelete />} />
 
         {/* Giảm giá */}
-        <Route path="Discount/List" element={<DiscountList />} />
+        <Route path="Discount/List" element={<DiscountTable />} />
         <Route path="Discount/Create" element={<DiscountCreate />} />
-        <Route path="Discount/Update/:discountId" element={<DiscountUpdate />} />
-        <Route path="Discount/Delete/:discountId" element={<DiscountDelete />} />
+        <Route path="Discount/Update/:id" element={<DiscountUpdate />} />
+        <Route path="Discount/Delete/:id" element={<DiscountDelete />} />
 
         {/* Giảm giá chi tiết */}
-        <Route path="DiscountDetail/List" element={<DiscountDetailList />} />
+        <Route path="DiscountDetail/List" element={<DiscountComboTable />} />
         <Route path="DiscountDetail/Create" element={<DiscountDetailCreate />} />
         <Route path="DiscountDetail/Update/:discountDetailId" element={<DiscountDetailUpdate />} />
         <Route path="DiscountDetail/Delete/:discountDetailId" element={<DiscountDetailDelete />} />

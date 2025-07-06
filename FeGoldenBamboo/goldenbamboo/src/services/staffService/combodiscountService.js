@@ -1,89 +1,81 @@
-import axios from 'axios';
+// services/staffService/combodiscountService.js
+import axios from "axios";
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_URL = "http://localhost:8080/Discount-Combo";
+const MANAGER_URL = "http://localhost:8080/Discount-Combo/Manager"; 
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 5000,
-  headers: {
-    'Content-Type': 'application/json',
-  }
-});
-
+// Lấy tất cả Discount Combos
 export const getAllDiscountCombos = async () => {
   try {
-    const response = await api.get('/Discount-Combo');
+    const response = await axios.get(API_URL);
     return response.data;
   } catch (error) {
-    console.error('Error fetching discount combos:', error);
-    throw new Error('Không thể tải danh sách combo giảm giá');
+    throw new Error(error.response?.data?.message || "Lỗi khi lấy danh sách combo giảm giá");
   }
 };
 
+// Alias
+export const getDiscountCombos = getAllDiscountCombos;
+
+// Lấy Discount Combo theo ID
+export const getDiscountComboById = async (id) => {
+  try {
+    const response = await axios.get(`${API_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Lỗi khi lấy combo giảm giá theo ID");
+  }
+};
+
+// Tạo mới Discount Combo
 export const createDiscountCombo = async (data) => {
   try {
-    const response = await api.post('/Discount-Combo', {
-      comboId: data.comboId, 
-      discountId: data.discountId, 
-      discountPercentage: data.discountPercentage
-    });
-    console.log("Created Discount Combo:", response.data);
+    const response = await axios.post(`${MANAGER_URL}/Add`, data);
     return response.data;
   } catch (error) {
-    console.error('Error creating discount combo:', error);
-    throw new Error('Không thể tạo combo giảm giá');
+    throw new Error(error.response?.data?.message || "Lỗi khi tạo combo giảm giá");
   }
 };
 
-
+// Cập nhật Discount Combo
 export const updateDiscountCombo = async (id, data) => {
   try {
-    const response = await api.put(`/Discount-Combo/${id}`, {
-      comboId: data.comboId, 
-      discountId: data.discountId, 
-      discountPercentage: data.discountPercentage
-    });
-    console.log("Updated Discount Combo:", response.data);
+    const response = await axios.put(`${MANAGER_URL}/Update/${id}`, data);
     return response.data;
   } catch (error) {
-    console.error('Error updating discount combo:', error);
-    throw new Error('Không thể cập nhật combo giảm giá');
+    throw new Error(error.response?.data?.message || "Lỗi khi cập nhật combo giảm giá");
   }
 };
 
-
+// Xoá Discount Combo
 export const deleteDiscountCombo = async (id) => {
   try {
-    const response = await api.delete(`/Discount-Combo/${id}`); 
+    const response = await axios.delete(`${MANAGER_URL}/Delete/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Error deleting discount combo:', error);
-    if (error.response) {
-      if (error.response.status === 409) {
-        throw new Error('Không thể xóa do tồn tại ràng buộc dữ liệu');
-      }
-      throw new Error(error.response.data.message || 'Không thể xóa combo giảm giá');
+    if (error.response?.status === 409) {
+      throw new Error("Không thể xóa do tồn tại ràng buộc dữ liệu");
     }
-    throw new Error('Lỗi kết nối mạng');
+    throw new Error(error.response?.data?.message || "Lỗi khi xóa combo giảm giá");
   }
 };
 
-export const getAllCombos = async () => {
+// Lấy danh sách Combo cho select box
+export const getCombosForSelect = async () => {
   try {
-    const response = await api.get('/Combo');
+    const response = await axios.get("http://localhost:8080/Combo");
     return response.data;
   } catch (error) {
-    console.error('Error fetching combos:', error);
-    throw new Error('Không thể tải danh sách combo');
+    throw new Error(error.response?.data?.message || "Lỗi khi lấy danh sách combo");
   }
 };
 
-export const getAllDiscounts = async () => {
+// Lấy danh sách Discount cho select box
+export const getDiscountsForSelect = async () => {
   try {
-    const response = await api.get('/Discount');
+    const response = await axios.get("http://localhost:8080/Discount");
     return response.data;
   } catch (error) {
-    console.error('Error fetching discounts:', error);
-    throw new Error('Không thể tải danh sách giảm giá');
+    throw new Error(error.response?.data?.message || "Lỗi khi lấy danh sách khuyến mãi");
   }
 };
