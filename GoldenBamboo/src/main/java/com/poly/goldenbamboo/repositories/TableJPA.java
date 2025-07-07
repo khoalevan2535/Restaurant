@@ -8,4 +8,5 @@ import com.poly.goldenbamboo.entities.TableEntity;
 
 public interface TableJPA extends JpaRepository<TableEntity, Integer> {
 	List<TableEntity> findByBranchId(Integer branchId);
+	
 }

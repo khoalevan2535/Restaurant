@@ -261,7 +261,7 @@ public class OrderService {
 	    }
 	    
 	    // Thiết lập giá trị mặc định
-	    newOrder.setStatus(0); // PENDING
+	    newOrder.setStatus(1); // PENDING
 	    newOrder.setTotalAmount(BigDecimal.ZERO);
 	    newOrder.setPrepay(BigDecimal.ZERO); 
 	    newOrder.setPaymentMethod("Tại quầy"); 

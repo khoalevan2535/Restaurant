@@ -141,6 +141,20 @@ findOrCreateOrder: async (tableId) => {
             handleAxiosError(error);
         }
     },
+
+   updateTableStatus: async (tableId, status) => {
+    try {
+        const response = await axios.put(`${API_URL}/api/tables/${tableId}/status`, { status });
+        // Nếu thành công, trả về dữ liệu từ server
+        return response.data;
+    } catch (error) {
+        // Nếu có lỗi, log lỗi ra console để debug
+        console.error(`Lỗi khi cập nhật trạng thái cho bàn ${tableId}:`, error.response?.data || error.message);
+        
+        // Ném lỗi ra ngoài để component gọi nó có thể bắt và xử lý (ví dụ: hiển thị toast)
+        throw error;
+    }
+}
 };
 
 

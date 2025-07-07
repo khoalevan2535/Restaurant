@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLockOpen, faLock, faUserClock, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { orderStaffService } from '../../services/staffService/Index.tsx';
 import { toast } from 'react-toastify';
-import { useNavigate, useParams  } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 // Định nghĩa kiểu dữ liệu cho bàn
 interface Table {
@@ -17,14 +17,10 @@ interface Table {
 // Hàm trợ giúp để lấy style dựa trên trạng thái bàn
 const getTableStyle = (status: number) => {
     switch (status) {
-        case 0: // Trống
-            return { icon: faLockOpen, color: 'success', text: 'Trống' };
-        case 1: // Có khách
-            return { icon: faLock, color: 'warning', text: 'Có khách' };
-        case 3: // Cần xử lý, đặt trước,...
-            return { icon: faUserClock, color: 'danger', text: 'Cần xử lý' };
-        default: // Trạng thái khác
-            return { icon: faQuestionCircle, color: 'secondary', text: 'Không xác định' };
+        case 0: return { icon: faLockOpen, color: 'success', text: 'Trống' };
+        case 1: return { icon: faLock, color: 'warning', text: 'Có khách' };
+        case 3: return { icon: faUserClock, color: 'danger', text: 'Cần xử lý' };
+        default: return { icon: faQuestionCircle, color: 'secondary', text: 'Không xác định' };
     }
 };
 
@@ -33,19 +29,16 @@ export default function StaffDashboard() {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-     const { branchId } = useParams<{ branchId: string }>();
+    const { branchId } = useParams<{ branchId: string }>();
 
- const fetchTables = useCallback(async () => {
-        // SỬA ĐỔI: Kiểm tra nếu có branchId thì mới fetch
+    const fetchTables = useCallback(async () => {
         if (!branchId) {
             setError("Không tìm thấy ID chi nhánh trong đường dẫn.");
             setLoading(false);
             return;
         }
-
         setLoading(true);
         try {
-            // SỬA ĐỔI: Sử dụng branchId từ URL thay vì hardcode
             const numericBranchId = parseInt(branchId);
             const data = await orderStaffService.getTablesByBranch(numericBranchId);
             setTables(data || []);
@@ -55,30 +48,47 @@ export default function StaffDashboard() {
         } finally {
             setLoading(false);
         }
-    }, [branchId]); // SỬA ĐỔI: Thêm branchId vào dependency
+    }, [branchId]);
 
     useEffect(() => {
         fetchTables();
     }, [fetchTables]);
 
-
-  // Hàm xử lý khi bấm vào một bàn
+    // Hành động chính: Chọn bàn để gọi món
     const handleTableSelect = async (table: Table) => {
         try {
             toast.info(`Đang xử lý bàn ${table.number}...`);
-            
-            // 1. Gọi API để lấy hoặc tạo orderId
             const order = await orderStaffService.findOrCreateOrder(table.id);
-            
             if (order && order.id) {
-                // 2. Chuyển đến trang gọi món với thông tin đã nhận được
                 navigate(`/Staff/Branch/${branchId}/Table/${table.id}/Order/${order.id}/Category/-1`);
             } else {
                 toast.error("Không nhận được thông tin đơn hàng.");
             }
-
         } catch (err: any) {
             toast.error("Có lỗi xảy ra: " + err.message);
+        }
+    };
+
+    // MỚI: Hàm xử lý thay đổi trạng thái bàn
+    const handleStatusChange = async (tableToUpdate: Table, newStatus: number) => {
+        // Nếu trạng thái đã là trạng thái mới thì không làm gì cả
+        if (tableToUpdate.status === newStatus) return;
+
+        toast.info(`Đang cập nhật trạng thái bàn ${tableToUpdate.number}...`);
+        try {
+            // Gọi API để cập nhật dưới database
+            await orderStaffService.updateTableStatus(tableToUpdate.id, newStatus);
+            
+            // Cập nhật lại giao diện ngay lập tức
+            setTables(currentTables => 
+                currentTables.map(table =>
+                    table.id === tableToUpdate.id ? { ...table, status: newStatus } : table
+                )
+            );
+            toast.success("Cập nhật trạng thái thành công!");
+
+        } catch (err: any) {
+            toast.error("Cập nhật thất bại: " + err.message);
         }
     };
 
@@ -95,6 +105,7 @@ export default function StaffDashboard() {
                         <div className="col-lg-2 col-md-3 col-sm-4 col-6 mb-4" key={table.id}>
                             <div 
                                 className={`card h-100 text-center border-${style.color}`} 
+                                // Bấm vào vùng chính sẽ thực hiện hành động chính
                                 onClick={() => handleTableSelect(table)}
                                 style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
                                 onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
@@ -104,6 +115,32 @@ export default function StaffDashboard() {
                                     <FontAwesomeIcon icon={style.icon} size="3x" />
                                     <h5 className="card-title mt-3 mb-1">Bàn {table.number}</h5>
                                     <p className="card-text"><small>{style.text}</small></p>
+                                </div>
+                                
+                                {/* MỚI: Khu vực các nút bấm đổi trạng thái nhanh */}
+                                <div className="card-footer p-1 bg-transparent border-top-0">
+                                    <div className="d-flex justify-content-around">
+                                        <button 
+                                            className="btn btn-sm btn-outline-success" 
+                                            title="Chuyển sang Trống"
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Ngăn sự kiện của card
+                                                handleStatusChange(table, 0);
+                                            }}
+                                        >
+                                            <FontAwesomeIcon icon={faLockOpen} />
+                                        </button>
+                                        <button 
+                                            className="btn btn-sm btn-outline-danger" 
+                                            title="Chuyển sang Cần xử lý"
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Ngăn sự kiện của card
+                                                handleStatusChange(table, 3);
+                                            }}
+                                        >
+                                            <FontAwesomeIcon icon={faUserClock} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
