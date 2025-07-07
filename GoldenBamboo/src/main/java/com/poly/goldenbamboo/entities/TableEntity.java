@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -28,7 +29,8 @@ public class TableEntity implements Serializable {
     private int id;
 
     @Column(name = "number", nullable = false, unique = true, length = 10)
-    @NotBlank(message = "Số bàn không được để trống")
+    @NotNull(message = "Số bàn không được dể trống")
+    @Min(1)
     private int number;
     
     @NotNull(message = "Số lượng bàn không được null")

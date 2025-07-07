@@ -104,4 +104,11 @@ public class DiscountComboService {
                 entity.getDiscountPercentage()
         );
     }
+
+    @Transactional(readOnly = true)
+    public DiscountComboEntity getById(Integer id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Discount combo không tồn tại"));
+    }
+
 }

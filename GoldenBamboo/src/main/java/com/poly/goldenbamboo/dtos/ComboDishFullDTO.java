@@ -13,9 +13,9 @@ public class ComboDishFullDTO {
     private int id;
     private int comboId;
     private String comboName;
-    private int dish1Id;
+    private Integer dish1Id;
     private String dish1Name;
-    private int dish2Id;
+    private Integer dish2Id;
     private String dish2Name;
 
 }

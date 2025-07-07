@@ -1,77 +1,73 @@
 package com.poly.goldenbamboo.controllers;
 
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseEntity.BodyBuilder;
-import org.springframework.web.bind.annotation.*;
-
 import com.poly.goldenbamboo.dtos.DiscountCombodtos;
 import com.poly.goldenbamboo.entities.DiscountComboEntity;
 import com.poly.goldenbamboo.services.DiscountComboService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/Discount-Combo")
 public class DiscountComboController {
 
-    private final DiscountComboService discountComboService;
-
-    public DiscountComboController(DiscountComboService discountComboService) {
-        this.discountComboService = discountComboService;
-    }
+    @Autowired
+    private DiscountComboService discountComboService;
 
     @GetMapping
-    public ResponseEntity<?> getAll() {
+    public ResponseEntity<List<DiscountCombodtos>> getAll() {
+        List<DiscountCombodtos> discountCombos = discountComboService.getAll();
+        return ResponseEntity.ok(discountCombos);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getById(@PathVariable Integer id) {
         try {
-            return ResponseEntity.ok(discountComboService.getAll());
+            DiscountComboEntity discountCombo = discountComboService.getById(id);
+            return ResponseEntity.ok(discountCombo);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(404).body("Discount Combo không tồn tại.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Lỗi khi lấy danh sách discount combo");
+            return ResponseEntity.badRequest().body("Lỗi khi lấy Discount Combo: " + e.getMessage());
         }
     }
 
-    @PostMapping
+    // Đổi path: Manager/Add
+    @PostMapping("/Manager/Add")
     public ResponseEntity<?> create(@RequestBody DiscountCombodtos dto) {
         try {
             DiscountComboEntity created = discountComboService.create(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.ok(created);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Lỗi khi tạo discount combo");
+            return ResponseEntity.badRequest().body("Lỗi khi tạo Discount Combo: " + e.getMessage());
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> update(
-            @PathVariable Integer id,
-            @RequestBody DiscountCombodtos dto) {
+    @PutMapping("/Manager/Update/{id}")
+    public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody DiscountCombodtos dto) {
         try {
             DiscountComboEntity updated = discountComboService.update(id, dto);
-            if (updated != null) {
-                return ResponseEntity.ok(updated);
-            }
-            return ResponseEntity.notFound().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.ok(updated);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(404).body("Discount Combo không tồn tại.");
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Lỗi khi cập nhật discount combo");
+            return ResponseEntity.badRequest().body("Lỗi khi cập nhật Discount Combo: " + e.getMessage());
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/Manager/Delete/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         try {
-            if (discountComboService.delete(id)) {
-                return ResponseEntity.noContent().build();
-            }
-            return ((BodyBuilder) ResponseEntity.notFound()).body("Discount combo không tồn tại");
-        } catch (DataIntegrityViolationException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Không thể xóa do tồn tại ràng buộc dữ liệu");
+            discountComboService.delete(id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body("Discount Combo không tồn tại.");
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Lỗi khi xóa discount combo");
+            return ResponseEntity.badRequest().body("Lỗi khi xóa Discount Combo: " + e.getMessage());
         }
     }
-
 }

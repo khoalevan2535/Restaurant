@@ -41,7 +41,7 @@ public class BranchEntity implements Serializable {
     private String name;
 
     @Column(name = "parent_id")
-    private boolean parentId; 
+    private Integer parentId; 
 
     @Column(name = "status", nullable = false)
     private boolean status; 
