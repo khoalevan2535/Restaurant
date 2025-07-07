@@ -2,33 +2,34 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLockOpen, faLock, faUserClock, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 
-// Định nghĩa Table interface để code chặt chẽ hơn
+// Định nghĩa Table interface
 interface Table {
     id: number;
     number: string;
     status: number;
     branchId: number;
-
 }
 
-// Định nghĩa props
+// Định nghĩa props - THÊM onStatusChange
 interface TableListProps {
     tables: Table[];
-    onTableSelect?: (table: Table) => void; // Hàm xử lý khi chọn bàn, có thể có hoặc không
+    onTableSelect?: (table: Table) => void;
+    // (MỚI) Hàm xử lý khi thay đổi trạng thái bàn, có thể có hoặc không
+    onStatusChange?: (table: Table, newStatus: number) => void; 
 }
 
-// Hàm trợ giúp để lấy style dựa trên trạng thái bàn
+// Hàm trợ giúp để lấy style dựa trên trạng thái bàn (không đổi)
 const getTableStyle = (status: number) => {
     switch (status) {
         case 0: return { icon: faLockOpen, color: 'success', text: 'Trống' };
         case 1: return { icon: faLock, color: 'warning', text: 'Có khách' };
-        case 3: return { icon: faUserClock, color: 'danger', text: 'Cần xử lý' }; // Thêm case status 3
+        case 3: return { icon: faUserClock, color: 'danger', text: 'Cần xử lý' };
         default: return { icon: faQuestionCircle, color: 'secondary', text: 'Không xác định' };
     }
 };
 
-export default function TableList({ tables, onTableSelect }: TableListProps) {
-    const isClickable = !!onTableSelect; // Bàn có thể được bấm vào nếu có hàm onTableSelect
+export default function TableList({ tables, onTableSelect, onStatusChange }: TableListProps) {
+    const isClickable = !!onTableSelect;
 
     return (
         <div className='col-2 border'>
@@ -41,7 +42,6 @@ export default function TableList({ tables, onTableSelect }: TableListProps) {
                             <div className="col-lg-6 col-md-12 col-6 mb-3" key={table.id}>
                                 <div 
                                     className={`card h-100 text-center border-${style.color}`} 
-                                    // Chỉ thêm onClick nếu có hàm onTableSelect được truyền vào
                                     onClick={isClickable ? () => onTableSelect(table) : undefined}
                                     style={{ 
                                         cursor: isClickable ? 'pointer' : 'default', 
@@ -55,6 +55,48 @@ export default function TableList({ tables, onTableSelect }: TableListProps) {
                                         <h6 className="card-title mt-2 mb-0">Bàn {table.number}</h6>
                                         <p className="card-text"><small>{style.text}</small></p>
                                     </div>
+                                    
+                                    {/* (MỚI) KHU VỰC THAY ĐỔI TRẠNG THÁI */}
+                                    {/* Chỉ hiển thị nếu có hàm onStatusChange được truyền vào */}
+                                    {onStatusChange && (
+                                        <div className="card-footer p-1 bg-transparent border-top-0">
+                                            <div className="d-flex justify-content-around">
+                                                {/* Nút chuyển sang 'Trống' */}
+                                                <button 
+                                                    className="btn btn-sm btn-outline-success" 
+                                                    title="Chuyển sang Trống"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Ngăn sự kiện click của card
+                                                        onStatusChange(table, 0);
+                                                    }}
+                                                >
+                                                    <FontAwesomeIcon icon={faLockOpen} />
+                                                </button>
+                                                {/* Nút chuyển sang 'Có khách' */}
+                                                <button 
+                                                    className="btn btn-sm btn-outline-warning" 
+                                                    title="Chuyển sang Có khách"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Ngăn sự kiện click của card
+                                                        onStatusChange(table, 1);
+                                                    }}
+                                                >
+                                                    <FontAwesomeIcon icon={faLock} />
+                                                </button>
+                                                {/* Nút chuyển sang 'Cần xử lý' */}
+                                                <button 
+                                                    className="btn btn-sm btn-outline-danger" 
+                                                    title="Chuyển sang Cần xử lý"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Ngăn sự kiện click của card
+                                                        onStatusChange(table, 3);
+                                                    }}
+                                                >
+                                                    <FontAwesomeIcon icon={faUserClock} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         );
